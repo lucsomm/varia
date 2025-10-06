@@ -3,7 +3,7 @@
 #include "base_storage.h"
 
 namespace varia::storage {
-    template<objects::VarCompatible T>
+    template<objects::Object T>
     class SharedRefStorage : public BaseStorage<T, SharedRefStorage<T> > {
     public:
         [[nodiscard]] static SharedRefStorage make_impl() {

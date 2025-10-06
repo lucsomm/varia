@@ -2,7 +2,7 @@
 #include "../objects/object_hierarchy.h"
 
 namespace varia::storage {
-    template<objects::VarCompatible T, typename Derived>
+    template<objects::Object T, typename Derived>
     struct BaseStorage {
     private:
         BaseStorage() = default;

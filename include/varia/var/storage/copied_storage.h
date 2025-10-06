@@ -2,7 +2,7 @@
 #include "base_storage.h"
 
 namespace varia::storage {
-    template<objects::VarCompatible T>
+    template<objects::Object T>
     class CopiedStorage : public BaseStorage<T, CopiedStorage<T> > {
     public:
         [[nodiscard]] static CopiedStorage make_impl() {

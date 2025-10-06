@@ -4,10 +4,17 @@
 #include <string>
 
 namespace varia::objects {
-    struct VarIncompatibleObject {};
-    struct CopiedObject {};
-    struct ImmutableRefObject {};
-    struct ReferencedObject {};
+    struct VarIncompatibleObject {
+    };
+
+    struct CopiedObject {
+    };
+
+    struct ImmutableRefObject {
+    };
+
+    struct ReferencedObject {
+    };
 
     // Copied
     using Bool = bool;
@@ -25,10 +32,10 @@ namespace varia::objects {
     concept Fundamental = std::is_fundamental_v<T>;
 
     template<typename T>
-    concept VarCompatible = !std::same_as<void, T>;
+    concept Object = !std::same_as<void, T>;
 
     template<typename T>
-    concept VarIncompatible = !VarCompatible<T>;
+    concept VarIncompatible = !Object<T>;
 
     template<typename T>
     concept Copied = std::is_base_of_v<CopiedObject, T> || std::is_fundamental_v<T>;
