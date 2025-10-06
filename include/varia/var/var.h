@@ -23,6 +23,14 @@ namespace varia {
             return *mValueStorage;
         }
 
+        T& operator*() {
+            return *mValueStorage;
+        }
+
+        T* operator->() {
+            return &*mValueStorage;
+        }
+
     private:
         StorageT mValueStorage{};
     };

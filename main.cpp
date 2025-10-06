@@ -7,4 +7,5 @@ int main() {
     a = c;
 
     var s = "Hej!";
+    s->shrink_to_fit();
 }
