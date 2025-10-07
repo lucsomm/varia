@@ -131,5 +131,18 @@ namespace varia {
         lhs << get(rhs);
         return lhs;
     }
+
+    inline String operator+(const String& lhs, const objects::String& rhs) {
+        return String{get(lhs) + rhs};
+    }
+
+    inline String operator+(const objects::String& lhs, const String& rhs) {
+        return String{lhs + get(rhs)};
+    }
+
+    inline String& operator+=(String& lhs, const objects::String& rhs) {
+        get(lhs) += rhs;
+        return lhs;
+    }
 }
 

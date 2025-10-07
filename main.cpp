@@ -17,5 +17,11 @@ int main() {
     std::cout << s << '\n';
     s = a;
     s->shrink_to_fit();
-    std::cout << s;
+    std::cout << s << '\n';
+
+    var q = "2+2=";
+    var ans = 2 + 2;
+    q += ans;
+
+    std::cout << q;
 }
