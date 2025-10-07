@@ -30,7 +30,7 @@ namespace varia {
         }
 
         var& operator=(const T& value) {
-            *mValueStorage = value;
+            *this = var{value};
             return *this;
         }
 
@@ -38,8 +38,8 @@ namespace varia {
             return *mValueStorage;
         }
 
-        T& operator*() {
-            return *mValueStorage;
+        const T* operator->() const {
+            return &*mValueStorage;
         }
 
         T* operator->() {
@@ -53,6 +53,18 @@ namespace varia {
         var& operator=([[maybe_unused]] const objects::None /*unused*/) {
             mValueStorage.reset();
             return *this;
+        }
+
+        operator objects::String() requires (std::same_as<objects::String, T>) {
+            if (mValueStorage.is_none()) {
+                return objects::None::none_string();
+            }
+
+            return *mValueStorage;
+        }
+
+        operator objects::String() requires (objects::Arithmetic<T>) {
+            return std::to_string(*mValueStorage);
         }
 
     private:

@@ -4,6 +4,10 @@
 namespace varia {
     namespace objects {
         struct None : CopiedObject {
+            static const std::string& none_string() {
+                static std::string str{"none"};
+                return str;
+            }
         };
     }
 

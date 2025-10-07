@@ -7,9 +7,12 @@ int main() {
     a = c;
 
     var n = none;
-    var s = "Hej!";
-    s->shrink_to_fit();
+    var s = "Hello!";
     std::cout << (s == none) << '\n';
     s = n;
-    std::cout << (s == none);
+    std::cout << (s == none) << '\n';
+    std::cout << std::string{s} << '\n';
+    s = a;
+    s->shrink_to_fit();
+    std::cout << std::string{s};
 }
