@@ -1,10 +1,23 @@
 #pragma once
+#include <ostream>
+
 #include "storage/storage.h"
 #include "objects/none.h"
 
 namespace varia {
-    template<objects::Object T, storage::Storage StorageT = storage::DefaultValueStorage<T> >
+    template<objects::Object T, storage::Storage StorageT = storage::DefaultStorage<T> >
     class var;
+
+    template<typename>
+    struct is_var : std::false_type {
+    };
+
+    template<objects::Object T>
+    struct is_var<var<T> > : std::true_type {
+    };
+
+    template<typename T>
+    concept Var = is_var<T>::value;
 
     using None = var<objects::None>;
     using Bool = var<objects::Bool>;
@@ -17,63 +30,106 @@ namespace varia {
     template<objects::Object T, storage::Storage StorageT>
     class var {
     public:
-        var() : mValueStorage{StorageT::make()} {
+        using ValueType = T;
+
+        var() : mStorage{StorageT::make()} {
         }
 
-        var(const T& value) : mValueStorage{StorageT::make(value)} {
+        var(const T& object) : mStorage{StorageT::make(object)} {
         }
 
-        var(const objects::Arithmetic auto value) : mValueStorage(StorageT::make(value)) {
+        var(const objects::Arithmetic auto object) : mStorage(StorageT::make(object)) {
         }
 
-        var(const char* value) : mValueStorage{StorageT::make(value)} {
+        var(const char* object) : mStorage{StorageT::make(object)} {
         }
 
-        var& operator=(const T& value) {
-            *this = var{value};
+        var& operator=(const T& object) {
+            *this = std::move(var{object});
             return *this;
         }
 
-        operator T() {
-            return *mValueStorage;
+        operator T() const {
+            return get();
         }
 
         const T* operator->() const {
-            return &*mValueStorage;
+            return &get();
         }
 
         T* operator->() {
-            return &*mValueStorage;
+            return &get();
         }
 
         bool operator==([[maybe_unused]] const objects::None /*unused*/) const {
-            return mValueStorage.is_none();
+            return mStorage.is_none();
         }
 
         var& operator=([[maybe_unused]] const objects::None /*unused*/) {
-            mValueStorage.reset();
+            mStorage.reset();
             return *this;
         }
 
         operator objects::String() requires (std::same_as<objects::String, T>) {
-            if (mValueStorage.is_none()) {
-                return objects::None::none_string();
-            }
-
-            return *mValueStorage;
+            return get();
         }
 
         operator objects::String() requires (objects::Arithmetic<T>) {
-            return std::to_string(*mValueStorage);
+            return std::to_string(get());
         }
 
+        template<Var U>
+        friend const U::ValueType& get(const U& v);
+
+        template<Var U>
+        friend U::ValueType& get(U& v);
+
     private:
-        StorageT mValueStorage{};
+        [[nodiscard]] const T& get() const {
+            return *mStorage;
+        }
+
+        [[nodiscard]] T& get() {
+            return *mStorage;
+        }
+
+        [[nodiscard]] const objects::String& get() const requires (std::same_as<objects::String, T>) {
+            if (mStorage.is_none()) {
+                return objects::None::none_string();
+            }
+
+            return *mStorage;
+        }
+
+        [[nodiscard]] objects::String& get() requires (std::same_as<objects::String, T>) {
+            if (mStorage.is_none()) {
+                *this = objects::None::none_string();
+            }
+
+            return *mStorage;
+        }
+
+        StorageT mStorage{};
     };
 
     template<objects::Arithmetic T>
     var(T) -> var<objects::Num>;
 
     var(const char*) -> var<objects::String>;
+
+    template<Var T>
+    const T::ValueType& get(const T& v) {
+        return v.get();
+    }
+
+    template<Var T>
+    T::ValueType& get(T& v) {
+        return v.get();
+    }
+
+    inline std::ostream& operator<<(std::ostream& lhs, const String& rhs) {
+        lhs << get(rhs);
+        return lhs;
+    }
 }
 

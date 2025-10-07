@@ -10,9 +10,12 @@ int main() {
     var s = "Hello!";
     std::cout << (s == none) << '\n';
     s = n;
+    std::string& test = get(s);
+    test += "1";
+    std::cout << test << " : " << s << "\n";
     std::cout << (s == none) << '\n';
-    std::cout << std::string{s} << '\n';
+    std::cout << s << '\n';
     s = a;
     s->shrink_to_fit();
-    std::cout << std::string{s};
+    std::cout << s;
 }
