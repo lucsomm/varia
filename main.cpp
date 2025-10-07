@@ -3,6 +3,7 @@
 int main() {
     var a = 6;
     int b = a;
+    std::cout << b << '\n';
     var c = b;
     a = c;
 

@@ -1,5 +1,6 @@
 #pragma once
-#include <ostream>
+#include <array>
+#include <charconv>
 
 #include "storage/storage.h"
 #include "objects/none.h"
@@ -26,6 +27,11 @@ namespace varia {
     using Num = var<objects::Num>;
 
     using String = var<objects::String>;
+
+    template<typename T>
+    concept Stringable = std::same_as<var<typename T::ValueType>, T> &&
+                         (objects::Arithmetic<typename T::ValueType> ||
+                          std::same_as<objects::String, typename T::ValueType>);
 
     template<objects::Object T, storage::Storage StorageT>
     class var {
@@ -127,7 +133,7 @@ namespace varia {
         return v.get();
     }
 
-    inline std::ostream& operator<<(std::ostream& lhs, const String& rhs) {
+    std::ostream& operator<<(std::ostream& lhs, const Stringable auto& rhs) {
         lhs << get(rhs);
         return lhs;
     }
