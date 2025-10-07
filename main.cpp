@@ -1,8 +1,8 @@
 #include "include/varia/using_varia.h"
 
 int main() {
-    var a = 6;
-    int b = a;
+    var a = 6.657685768;
+    float b = a;
     std::cout << b << '\n';
     var c = b;
     a = c;
@@ -20,8 +20,8 @@ int main() {
     s->shrink_to_fit();
     std::cout << s << '\n';
 
-    var q = "2+2=";
-    var ans = 2 + 2;
+    var q = "2 + 2.5 = ";
+    var ans = 2 + 2.5;
     q += ans;
 
     std::cout << q;

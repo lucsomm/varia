@@ -1,5 +1,4 @@
 #pragma once
-#include <array>
 #include <charconv>
 
 #include "storage/storage.h"
@@ -76,12 +75,17 @@ namespace varia {
             return *this;
         }
 
-        operator objects::String() requires (std::same_as<objects::String, T>) {
-            return get();
+        operator objects::String() requires (std::integral<T>) {
+            return std::to_string(get());
         }
 
-        operator objects::String() requires (objects::Arithmetic<T>) {
-            return std::to_string(get());
+        operator objects::String() requires (std::same_as<objects::Num, T>) {
+            constexpr size_t buffer_size = std::numeric_limits<objects::Float>::max_digits10;
+            std::string str(buffer_size, '\0');
+            auto [ptr, ec] = std::to_chars(str.data(), str.data() + str.size(),
+                                           get(), std::chars_format::general);
+            str.resize(ptr - str.data());
+            return str;
         }
 
         template<Var U>
