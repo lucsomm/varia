@@ -6,6 +6,10 @@ int main() {
     var c = b;
     a = c;
 
+    var n = none;
     var s = "Hej!";
     s->shrink_to_fit();
+    std::cout << (s == none) << '\n';
+    s = n;
+    std::cout << (s == none);
 }

@@ -18,16 +18,28 @@ namespace varia::storage {
             return Derived::make_impl(t);
         }
 
+        const T& operator*() const {
+            return *static_cast<const Derived&>(*this);
+        }
+
         T& operator*() {
-            return *static_cast<Derived>(*this);
+            return *static_cast<Derived&>(*this);
+        }
+
+        const T* operator->() const {
+            return &*static_cast<const Derived&>(*this);
         }
 
         T* operator->() {
-            return &*static_cast<Derived>(*this);
+            return &*static_cast<Derived&>(*this);
         }
 
-        [[nodiscard]] bool is_none() {
-            return static_cast<Derived>(*this).is_none_impl();
+        [[nodiscard]] bool is_none() const {
+            return static_cast<const Derived&>(*this).is_none_impl();
+        }
+
+        void reset() {
+            return static_cast<Derived&>(*this).reset_impl();
         }
 
         friend Derived;

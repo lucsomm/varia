@@ -13,8 +13,16 @@ namespace varia::storage {
             return CopiedStorage{t};
         }
 
+        const T& operator*() const {
+            return mValue;
+        }
+
         T& operator*() {
             return mValue;
+        }
+
+        const T* operator->() const {
+            return &mValue;
         }
 
         T* operator->() {
@@ -23,6 +31,10 @@ namespace varia::storage {
 
         [[nodiscard]] bool is_none_impl() const {
             return mValue == T{};
+        }
+
+        void reset_impl() {
+            mValue = {};
         }
 
     private:

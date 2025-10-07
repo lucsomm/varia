@@ -14,16 +14,28 @@ namespace varia::storage {
             return SharedRefStorage{std::make_shared<T>(t)};
         }
 
+        const T& operator*() const {
+            return *mValue;
+        }
+
         T& operator*() {
             return *mValue;
         }
 
+        const T* operator->() const {
+            return mValue.get();
+        }
+
         T* operator->() {
-            return &*mValue;
+            return mValue.get();
         }
 
         [[nodiscard]] bool is_none_impl() const {
             return mValue == nullptr;
+        }
+
+        void reset_impl() {
+            mValue.reset();
         }
 
     private:
