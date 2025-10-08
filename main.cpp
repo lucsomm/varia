@@ -1,13 +1,19 @@
 #include "include/varia/using_varia.h"
 
+struct Person {
+    Person(String name) {
+        this->name = name;
+    }
+
+    String name;
+};
+
 int main() {
     var a = 6.657685768;
     float b = a;
     std::cout << b << '\n';
     var c = b;
     a = c;
-
-    Num bajs = Num{"7"};
 
     var n = none;
     var s = "Hello!" + String(" Yello!");
@@ -25,5 +31,17 @@ int main() {
 
     String oof = 6;
 
-    std::cout << q;
+    std::cout << q << '\n';
+
+    // Immutable ref example
+    var one = "one";
+    var two = one;
+    two += "two";
+    std::cout << one << '\n';
+
+    // Shared ref example
+    var p = Person("Kalle");
+    var p2 = p;
+    p2->name += " Jr.";
+    std::cout << p->name << '\n';
 }

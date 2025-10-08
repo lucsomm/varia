@@ -13,19 +13,11 @@ namespace varia::storage {
             return CopiedStorage{t};
         }
 
-        const T& operator*() const {
-            return mValue;
-        }
-
-        T& operator*() {
-            return mValue;
-        }
-
-        const T* operator->() const {
+        [[nodiscard]] const T* get_impl() const {
             return &mValue;
         }
 
-        T* operator->() {
+        [[nodiscard]] T* get_impl() {
             return &mValue;
         }
 
