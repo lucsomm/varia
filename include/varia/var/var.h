@@ -81,6 +81,16 @@ namespace varia {
         } {
         }
 
+        var(const char* str) requires (std::same_as<objects::Int, T>) : mStorage{
+            StorageT::make(objects::detail::to_int(str))
+        } {
+        }
+
+        var(const char* str) requires (std::same_as<objects::Num, T>) : mStorage{
+            StorageT::make(objects::detail::to_num(str))
+        } {
+        }
+
         var& operator=(const T& object) {
             *this = std::move(var{object});
             return *this;

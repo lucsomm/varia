@@ -7,6 +7,8 @@ int main() {
     var c = b;
     a = c;
 
+    Num bajs = Num{"7"};
+
     var n = none;
     var s = "Hello!" + String(" Yello!");
     std::cout << (s == none) << '\n';
