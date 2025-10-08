@@ -50,28 +50,35 @@ namespace varia {
         var(const T& object) : mStorage{StorageT::make(object)} {
         }
 
-        var(const objects::Arithmetic auto object) : mStorage(StorageT::make(object)) {
+        var(const objects::Arithmetic auto object) : mStorage{StorageT::make(object)} {
         }
 
         var(const char* object) : mStorage{StorageT::make(object)} {
         }
 
+        //
         // Type casting constructors
+        //
+
         template<objects::Arithmetic U>
-        var(const var<U>& v) requires (std::same_as<objects::String, T>) : mStorage(StorageT::make(
-            objects::detail::to_string(varia::get(v)))) {
+        var(const var<U>& v) requires (std::same_as<objects::String, T>) : mStorage{
+            StorageT::make(objects::detail::to_string(varia::get(v)))
+        } {
         }
 
-        var(const objects::Arithmetic auto v) requires (std::same_as<objects::String, T>) : mStorage(
-            StorageT::make(objects::detail::to_string(v))) {
+        var(const objects::Arithmetic auto v) requires (std::same_as<objects::String, T>) : mStorage{
+            StorageT::make(objects::detail::to_string(v))
+        } {
         }
 
-        var(const objects::String& str) requires (std::same_as<objects::Int, T>) : mStorage(
-            StorageT::make(objects::detail::to_int(str))) {
+        var(const objects::String& str) requires (std::same_as<objects::Int, T>) : mStorage{
+            StorageT::make(objects::detail::to_int(str))
+        } {
         }
 
-        var(const objects::String& str) requires (std::same_as<objects::Num, T>) : mStorage(
-            StorageT::make(objects::detail::to_num(str))) {
+        var(const objects::String& str) requires (std::same_as<objects::Num, T>) : mStorage{
+            StorageT::make(objects::detail::to_num(str))
+        } {
         }
 
         var& operator=(const T& object) {
