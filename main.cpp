@@ -13,13 +13,15 @@ int main() {
     s = n;
     std::cout << (s == none) << '\n';
     std::cout << s << '\n';
-    s = a;
+    s = String(a);
     s->shrink_to_fit();
     std::cout << s << '\n';
 
     var q = "2 + 2.5 = ";
     var ans = 2 + 2.5;
-    q += ans;
+    q += String(ans) + String(5);
+
+    String oof = 6;
 
     std::cout << q;
 }

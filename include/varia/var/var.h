@@ -1,8 +1,10 @@
 #pragma once
-#include <charconv>
+
+#include <iostream>
 
 #include "storage/storage.h"
 #include "objects/none.h"
+#include "objects/string.h"
 
 namespace varia {
     template<objects::Object T, storage::Storage StorageT = storage::DefaultStorage<T> >
@@ -32,6 +34,11 @@ namespace varia {
                          (objects::Arithmetic<typename T::ValueType> ||
                           std::same_as<objects::String, typename T::ValueType>);
 
+    template<Var T>
+    const T::ValueType& get(const T& v) {
+        return v.get();
+    }
+
     template<objects::Object T, storage::Storage StorageT>
     class var {
     public:
@@ -47,6 +54,16 @@ namespace varia {
         }
 
         var(const char* object) : mStorage{StorageT::make(object)} {
+        }
+
+        // Type casting constructors
+        template<objects::Arithmetic U>
+        var(const var<U>& v) requires (std::same_as<objects::String, T>) : mStorage(StorageT::make(
+            objects::detail::to_string(varia::get(v)))) {
+        }
+
+        var(const objects::Arithmetic auto v) requires (std::same_as<objects::String, T>) : mStorage(
+            StorageT::make(objects::detail::to_string(v))) {
         }
 
         var& operator=(const T& object) {
@@ -73,19 +90,6 @@ namespace varia {
         var& operator=([[maybe_unused]] const objects::None /*unused*/) {
             mStorage.reset();
             return *this;
-        }
-
-        operator objects::String() requires (std::integral<T>) {
-            return std::to_string(get());
-        }
-
-        operator objects::String() requires (std::same_as<objects::Num, T>) {
-            constexpr size_t buffer_size = std::numeric_limits<objects::Float>::max_digits10;
-            std::string str(buffer_size, '\0');
-            auto [ptr, ec] = std::to_chars(str.data(), str.data() + str.size(),
-                                           get(), std::chars_format::general);
-            str.resize(ptr - str.data());
-            return str;
         }
 
         template<Var U>
@@ -126,14 +130,13 @@ namespace varia {
 
     var(const char*) -> var<objects::String>;
 
-    template<Var T>
-    const T::ValueType& get(const T& v) {
-        return v.get();
-    }
-
     std::ostream& operator<<(std::ostream& lhs, const Stringable auto& rhs) {
         lhs << get(rhs);
         return lhs;
+    }
+
+    inline String operator+(const String& lhs, const String& rhs) {
+        return String{get(lhs) + get(rhs)};
     }
 
     inline String operator+(const String& lhs, const objects::String& rhs) {
