@@ -15,4 +15,16 @@ namespace varia::objects::detail {
         str.resize(ptr - str.data());
         return str;
     }
+
+    inline Int to_int(const String& str) {
+        Int value{};
+        std::from_chars(str.data(), str.data() + str.size(), value);
+        return value;
+    }
+
+    inline Num to_num(const String& str) {
+        Num value{};
+        std::from_chars(str.data(), str.data() + str.size(), value);
+        return value;
+    }
 }

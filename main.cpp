@@ -8,7 +8,7 @@ int main() {
     a = c;
 
     var n = none;
-    var s = "Hello!";
+    var s = "Hello!" + String(" Yello!");
     std::cout << (s == none) << '\n';
     s = n;
     std::cout << (s == none) << '\n';
@@ -18,7 +18,7 @@ int main() {
     std::cout << s << '\n';
 
     var q = "2 + 2.5 = ";
-    var ans = 2 + 2.5;
+    var ans = Num(2) + 2.5;
     q += String(ans) + String(5);
 
     String oof = 6;

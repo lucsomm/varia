@@ -66,6 +66,14 @@ namespace varia {
             StorageT::make(objects::detail::to_string(v))) {
         }
 
+        var(const objects::String& str) requires (std::same_as<objects::Int, T>) : mStorage(
+            StorageT::make(objects::detail::to_int(str))) {
+        }
+
+        var(const objects::String& str) requires (std::same_as<objects::Num, T>) : mStorage(
+            StorageT::make(objects::detail::to_num(str))) {
+        }
+
         var& operator=(const T& object) {
             *this = std::move(var{object});
             return *this;
@@ -137,14 +145,6 @@ namespace varia {
 
     inline String operator+(const String& lhs, const String& rhs) {
         return String{get(lhs) + get(rhs)};
-    }
-
-    inline String operator+(const String& lhs, const objects::String& rhs) {
-        return String{get(lhs) + rhs};
-    }
-
-    inline String operator+(const objects::String& lhs, const String& rhs) {
-        return String{lhs + get(rhs)};
     }
 
     inline String& operator+=(String& lhs, const objects::String& rhs) {
