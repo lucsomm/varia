@@ -54,7 +54,7 @@ namespace varia {
             return *this;
         }
 
-        operator const T&() const {
+        operator T() const {
             return get();
         }
 
