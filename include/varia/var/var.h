@@ -54,7 +54,7 @@ namespace varia {
             return *this;
         }
 
-        operator T() const {
+        operator const T&() const {
             return get();
         }
 
@@ -91,8 +91,7 @@ namespace varia {
         template<Var U>
         friend const U::ValueType& get(const U& v);
 
-        template<Var U>
-        friend U::ValueType& get(U& v);
+        friend String& operator+=(String& lhs, const objects::String& rhs);
 
     private:
         [[nodiscard]] const T& get() const {
@@ -113,7 +112,7 @@ namespace varia {
 
         [[nodiscard]] objects::String& get() requires (std::same_as<objects::String, T>) {
             if (mStorage.is_none()) {
-                *this = objects::None::none_string();
+                return objects::None::none_string();
             }
 
             return *mStorage;
@@ -132,11 +131,6 @@ namespace varia {
         return v.get();
     }
 
-    template<Var T>
-    T::ValueType& get(T& v) {
-        return v.get();
-    }
-
     std::ostream& operator<<(std::ostream& lhs, const Stringable auto& rhs) {
         lhs << get(rhs);
         return lhs;
@@ -151,8 +145,7 @@ namespace varia {
     }
 
     inline String& operator+=(String& lhs, const objects::String& rhs) {
-        get(lhs) += rhs;
+        lhs.get() += rhs;
         return lhs;
     }
 }
-
