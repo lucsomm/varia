@@ -44,4 +44,8 @@ int main() {
     var p2 = p;
     p2->name += " Jr.";
     std::cout << p->name << '\n';
+
+    String no = none;
+    std::cout << no << '\n';
+    std::cout << (no == none) << '\n';
 }

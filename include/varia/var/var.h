@@ -50,6 +50,14 @@ namespace varia {
         var(const T& object) : mStorage{StorageT::make(object)} {
         }
 
+        var([[maybe_unused]] const objects::None /*unused*/)
+            requires (!std::same_as<objects::None, T>) : mStorage{StorageT::make()} {
+        }
+
+        //
+        // Specialized constructors
+        //
+
         var(const objects::Arithmetic auto object) : mStorage{StorageT::make(object)} {
         }
 
