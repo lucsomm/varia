@@ -76,4 +76,8 @@ int main() {
     var e2 = e;
     e2->name = "Pelle";
     e->greet();
+
+    // Type ids and object ids
+    std::cout << "Are they the same type? " << type(e) << " " << type(e2) << '\n';
+    std::cout << "Do they have the same id? " << id(e) << " " << id(e2) << '\n';
 }

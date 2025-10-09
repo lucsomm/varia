@@ -160,6 +160,26 @@ namespace varia {
 
     var(const char*) -> var<objects::String>;
 
+    inline size_t type_counter() {
+        static size_t type_id{};
+        return type_id++;
+    }
+
+    Num type([[maybe_unused]] const Var auto& /*unused*/) {
+        static const size_t id = type_counter();
+        return Num{id};
+    }
+
+    Num id(const Var auto& v) {
+        return Num{static_cast<objects::Int>(reinterpret_cast<uintptr_t>(&get(v)))};
+    }
+
+    template<typename T>
+    Bool operator==(const var<T>& lhs, const var<T>& rhs) {
+        return reinterpret_cast<uintptr_t>(&get(lhs)) == reinterpret_cast<uintptr_t>(&get(rhs)) /* ||
+               get(lhs) == get(rhs) */;
+    }
+
     std::ostream& operator<<(std::ostream& lhs, const Stringable auto& rhs) {
         lhs << get(rhs);
         return lhs;
