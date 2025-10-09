@@ -72,7 +72,7 @@ int main() {
     std::cout << (no == none) << '\n';
 
     // Polymorphism example
-    var e = Employee("Olle", "Janitor");
+    var<Person> e = Employee("Olle", "Janitor");
     var e2 = e;
     e2->name = "Pelle";
     e->greet();
