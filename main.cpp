@@ -30,6 +30,9 @@ int main() {
     q += String(ans) + String(5);
 
     String oof = 6;
+    oof = 7;
+    Num bar = "3";
+    bar = "56";
 
     std::cout << q << '\n';
 
