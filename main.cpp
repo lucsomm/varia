@@ -5,7 +5,26 @@ struct Person {
         this->name = name;
     }
 
+    virtual void greet() {
+        std::cout << "Hi. My name is " << name << ".\n";
+    }
+
+    static Int id_counter;
     String name;
+};
+
+struct Employee : Person {
+    Employee(String name, String role) : Person(name) {
+        this->role = role;
+    }
+
+    void greet() override {
+        Person::greet();
+        std::cout << "My role is: " << role << " and my ID is: " << id;
+    }
+
+    String role;
+    Int id;
 };
 
 int main() {
@@ -51,4 +70,10 @@ int main() {
     String no = none;
     std::cout << no << '\n';
     std::cout << (no == none) << '\n';
+
+    // Polymorphism example
+    var e = Employee("Olle", "Janitor");
+    var e2 = e;
+    e2->name = "Pelle";
+    e->greet();
 }

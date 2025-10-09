@@ -50,13 +50,15 @@ namespace varia {
         var(const T& object) : mStorage{StorageT::make(object)} {
         }
 
+        template<std::derived_from<T> Derived>
+        var(const Derived& object) requires (std::is_polymorphic_v<T> && objects::Referenced<T>) : mStorage{
+            StorageT::make_polymorphic(object)
+        } {
+        }
+
         var([[maybe_unused]] const objects::None /*unused*/)
             requires (!std::same_as<objects::None, T>) : mStorage{StorageT::make()} {
         }
-
-        //
-        // Specialized constructors
-        //
 
         var(const objects::Arithmetic auto object) : mStorage{StorageT::make(object)} {
         }
@@ -97,11 +99,6 @@ namespace varia {
         var(const char* str) requires (std::same_as<objects::Num, T>) : mStorage{
             StorageT::make(objects::detail::to_num(str))
         } {
-        }
-
-        var& operator=(const T& object) {
-            *this = std::move(var{object});
-            return *this;
         }
 
         operator T() const {
