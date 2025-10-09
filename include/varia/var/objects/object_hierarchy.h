@@ -38,11 +38,11 @@ namespace varia::objects {
     concept VarIncompatible = !Object<T>;
 
     template<typename T>
-    concept Copied = std::is_base_of_v<CopiedObject, T> || std::is_fundamental_v<T>;
+    concept Copied = std::derived_from<T, CopiedObject> || std::is_fundamental_v<T>;
 
     template<typename T>
-    concept ImmutableRef = std::is_base_of_v<ImmutableRefObject, T> || std::same_as<String, T>;
+    concept ImmutableRef = std::derived_from<T, ImmutableRefObject> || std::same_as<String, T>;
 
     template<typename T>
-    concept Referenced = std::is_base_of_v<ReferencedObject, T> || ImmutableRef<T>;
+    concept Referenced = std::derived_from<T, ReferencedObject> || ImmutableRef<T>;
 }

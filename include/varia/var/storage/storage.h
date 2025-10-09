@@ -12,5 +12,5 @@ namespace varia::storage {
     using DefaultStorage = std::conditional_t<objects::Copied<T>, CopiedStorage<T>, DefaultRefStorage<T> >;
 
     template<typename Derived>
-    concept Storage = std::is_base_of_v<BaseStorage<typename Derived::ValueType, Derived>, Derived>;
+    concept Storage = std::derived_from<Derived, BaseStorage<typename Derived::ValueType, Derived> >;
 }
