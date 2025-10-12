@@ -9,6 +9,8 @@ struct Person {
         std::cout << "Hi. My name is " << name << ".\n";
     }
 
+    auto operator<=>(const Person&) const = default;
+
     static Int id_counter;
     String name;
 };
@@ -76,8 +78,9 @@ int main() {
     var e2 = e;
     e2->name = "Pelle";
     e->greet();
+    var<Person> e3 = Employee("Pelle", "Janitor");
 
     // Type ids and object ids
-    std::cout << "Are they the same type? " << type(e) << " " << type(e2) << '\n';
-    std::cout << "Do they have the same id? " << id(e) << " " << id(e2) << '\n';
+    std::cout << "Do they have the same id (id(e) == id(e3))? " << (id(e) == id(e3)) << '\n';
+    std::cout << "Are they the same (e == e3)? " << (e == e3) << '\n';
 }

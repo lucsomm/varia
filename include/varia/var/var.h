@@ -51,7 +51,7 @@ namespace varia {
         }
 
         template<std::derived_from<T> Derived>
-        var(const Derived& object) requires (std::is_polymorphic_v<T> && objects::Referenced<T>) : mStorage{
+        var(const Derived& object) requires (objects::Referenced<T>) : mStorage{
             StorageT::make_polymorphic(object)
         } {
         }
@@ -113,7 +113,7 @@ namespace varia {
             return &get();
         }
 
-        bool operator==([[maybe_unused]] const objects::None /*unused*/) const {
+        Bool operator==([[maybe_unused]] const objects::None /*unused*/) const {
             return mStorage.is_none();
         }
 
@@ -121,6 +121,9 @@ namespace varia {
             mStorage.reset();
             return *this;
         }
+
+        template<Var U>
+        friend Bool operator==(const U& lhs, const U& rhs);
 
         template<Var U>
         friend const U::ValueType& get(const U& v);
@@ -160,24 +163,21 @@ namespace varia {
 
     var(const char*) -> var<objects::String>;
 
-    inline size_t type_counter() {
-        static size_t type_id{};
-        return type_id++;
-    }
-
-    Num type([[maybe_unused]] const Var auto& /*unused*/) {
-        static const size_t id = type_counter();
-        return Num{id};
-    }
-
     Num id(const Var auto& v) {
+        if (v == none) {
+            return Num{none};
+        }
+
         return Num{static_cast<objects::Int>(reinterpret_cast<uintptr_t>(&get(v)))};
     }
 
-    template<typename T>
-    Bool operator==(const var<T>& lhs, const var<T>& rhs) {
-        return reinterpret_cast<uintptr_t>(&get(lhs)) == reinterpret_cast<uintptr_t>(&get(rhs)) /* ||
-               get(lhs) == get(rhs) */;
+    template<Var U>
+    Bool operator==(const U& lhs, const U& rhs) {
+        if (rhs.mStorage.is_none() || lhs.mStorage.is_none()) {
+            return rhs.mStorage.is_none() && lhs.mStorage.is_none();
+        }
+
+        return &lhs.get() == &rhs.get() || lhs.get() == rhs.get();
     }
 
     std::ostream& operator<<(std::ostream& lhs, const Stringable auto& rhs) {
