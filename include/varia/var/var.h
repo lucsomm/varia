@@ -60,7 +60,7 @@ namespace varia {
             requires (!std::same_as<objects::None, T>) : mStorage{StorageT::make()} {
         }
 
-        var(const objects::Arithmetic auto object) : mStorage{StorageT::make(object)} {
+        var(const objects::ArithmeticNotBool auto object) : mStorage{StorageT::make(object)} {
         }
 
         var(const char* object) : mStorage{StorageT::make(object)} {
@@ -70,13 +70,18 @@ namespace varia {
         // Type casting constructors
         //
 
-        template<objects::Arithmetic U>
+        template<objects::ArithmeticNotBool U>
         var(const var<U>& v) requires (std::same_as<objects::String, T>) : mStorage{
             StorageT::make(objects::detail::to_string(varia::get(v)))
         } {
         }
 
-        var(const objects::Arithmetic auto v) requires (std::same_as<objects::String, T>) : mStorage{
+        var(const Bool& v) requires (std::same_as<objects::String, T>) : mStorage{
+            StorageT::make(v ? "true" : "false")
+        } {
+        }
+
+        var(const objects::ArithmeticNotBool auto v) requires (std::same_as<objects::String, T>) : mStorage{
             StorageT::make(objects::detail::to_string(v))
         } {
         }
@@ -128,7 +133,7 @@ namespace varia {
         template<Var U>
         friend const U::ValueType& get(const U& v);
 
-        friend String& operator+=(String& lhs, const objects::String& rhs);
+        friend String& operator+=(String& lhs, const String& rhs);
 
     private:
         [[nodiscard]] const T& get() const {
@@ -158,7 +163,9 @@ namespace varia {
         StorageT mStorage{};
     };
 
-    template<objects::Arithmetic T>
+    var(bool) -> var<objects::Bool>;
+
+    template<objects::ArithmeticNotBool T>
     var(T) -> var<objects::Num>;
 
     var(const char*) -> var<objects::String>;
@@ -189,8 +196,8 @@ namespace varia {
         return String{get(lhs) + get(rhs)};
     }
 
-    inline String& operator+=(String& lhs, const objects::String& rhs) {
-        lhs.get() += rhs;
+    inline String& operator+=(String& lhs, const String& rhs) {
+        lhs.get() += get(rhs);
         return lhs;
     }
 }
