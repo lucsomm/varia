@@ -4,6 +4,12 @@
 #include "object_hierarchy.h"
 
 namespace varia::objects::detail {
+    String to_string(const bool value) {
+        return String{
+            value ? "true" : "false"
+        };
+    }
+
     String to_string(const std::integral auto value) {
         return std::to_string(value);
     }

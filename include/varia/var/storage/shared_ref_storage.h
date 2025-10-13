@@ -14,7 +14,7 @@ namespace varia::storage {
             return SharedRefStorage{std::make_shared<T>(t)};
         }
 
-        template<objects::Object U>
+        template<std::derived_from<T> U>
         [[nodiscard]] static SharedRefStorage make_polymorphic(const U& object) {
             return SharedRefStorage{std::make_shared<U>(object)};
         }

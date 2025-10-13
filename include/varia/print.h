@@ -29,12 +29,12 @@ namespace varia::detail {
 
 namespace varia {
     template<typename... Args>
-    void print(const String& str, const Args&&... args) {
-        detail::vprint(stdout, get(str), std::make_format_args(std::forward<Args>(args)...));
+    void print(const Var auto& fmt, const Args&&... args) {
+        detail::vprint(stdout, get(String{fmt}), std::make_format_args(std::forward<Args>(args)...));
     }
 
     template<typename... Args>
-    void println(const String& str, const Args&&... args) {
-        detail::vprintln(stdout, get(str), std::make_format_args(std::forward<Args>(args)...));
+    void println(const Var auto& fmt, const Args&&... args) {
+        detail::vprintln(stdout, get(String{fmt}), std::make_format_args(std::forward<Args>(args)...));
     }
 }
