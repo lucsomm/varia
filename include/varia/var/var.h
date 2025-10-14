@@ -139,27 +139,27 @@ namespace varia {
 
     private:
         [[nodiscard]] const T& get() const {
-            return *mStorage;
+            if constexpr (std::same_as<T, objects::String>) {
+                if (mStorage.is_none()) {
+                    return objects::None::none_string();
+                }
+
+                return *mStorage;
+            } else {
+                return *mStorage;
+            }
         }
 
         [[nodiscard]] T& get() {
-            return *mStorage;
-        }
+            if constexpr (std::same_as<T, objects::String>) {
+                if (mStorage.is_none()) {
+                    return objects::None::none_string();
+                }
 
-        [[nodiscard]] const objects::String& get() const requires (std::same_as<objects::String, T>) {
-            if (mStorage.is_none()) {
-                return objects::None::none_string();
+                return *mStorage;
+            } else {
+                return *mStorage;
             }
-
-            return *mStorage;
-        }
-
-        [[nodiscard]] objects::String& get() requires (std::same_as<objects::String, T>) {
-            if (mStorage.is_none()) {
-                return objects::None::none_string();
-            }
-
-            return *mStorage;
         }
 
         StorageT mStorage{};
