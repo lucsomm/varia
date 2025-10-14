@@ -30,9 +30,18 @@ struct Employee : Person {
 };
 
 int main() {
+    println("Hello World!");
+    println(7);
+
     var a = "4";
     var b = Num(a);
-    a = b + a;
+    a += 6;
+    b + a;
+    a + b;
+
+    a + "";
+    Bool(false) + "" + a;
+
 
     println("a: " + a + " b: " + b);
     println("a == b? " + (Num(a) == b));

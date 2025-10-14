@@ -3,7 +3,17 @@
 #include <limits>
 #include "object_hierarchy.h"
 
+namespace varia::objects {
+    template<typename T>
+    concept Stringable = Arithmetic<T> || std::same_as<String, T> || std::same_as<const char*, T> || std::same_as<
+                             std::string_view, T>;
+}
+
 namespace varia::objects::detail {
+    String to_string(const None n) {
+        return String{"none"};
+    }
+
     String to_string(const bool value) {
         return String{
             value ? "true" : "false"

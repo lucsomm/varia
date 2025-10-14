@@ -30,9 +30,9 @@ namespace varia {
     using String = var<objects::String>;
 
     template<typename T>
-    concept Stringable = std::same_as<var<typename T::ValueType>, T> &&
-                         (objects::Arithmetic<typename T::ValueType> ||
-                          std::same_as<objects::String, typename T::ValueType>);
+    concept Stringable =
+            Var<T> && (objects::Arithmetic<typename T::ValueType> ||
+                       std::same_as<typename T::ValueType, objects::String>);
 
     template<Var T>
     const T::ValueType& get(const T& v) {
@@ -70,27 +70,23 @@ namespace varia {
             requires (!std::same_as<objects::None, T>) : mStorage{StorageT::make()} {
         }
 
-        var(const objects::ArithmeticNotBool auto object) : mStorage{StorageT::make(object)} {
-        }
-
-        var(const char* object) : mStorage{StorageT::make(object)} {
-        }
-
-        //
-        // Explicitly converting constructors
-        //
-
-        explicit var(const Int& from) requires (std::same_as<objects::String, T>) : mStorage{
-            StorageT::make(objects::detail::to_string(varia::get(from)))
+        var(const objects::ArithmeticNotBool auto object) requires (std::same_as<objects::Num, T>) : mStorage{
+            StorageT::make(object)
         } {
         }
 
-        explicit var(const Num& from) requires (std::same_as<objects::String, T>) : mStorage{
-            StorageT::make(objects::detail::to_string(varia::get(from)))
-        } {
+        var(const char* object) requires (std::same_as<objects::String, T>) : mStorage{StorageT::make(object)} {
         }
 
-        explicit var(const Bool& from) requires (std::same_as<objects::String, T>) : mStorage{
+        //
+        // Converting constructors
+        //
+
+        var(const objects::Stringable auto& from) requires (std::same_as<objects::String,
+            T>) : mStorage{StorageT::make(objects::detail::to_string(from))} {
+        }
+
+        var(const Stringable auto& from) requires (std::same_as<objects::String, T>) : mStorage{
             StorageT::make(objects::detail::to_string(varia::get(from)))
         } {
         }
@@ -102,6 +98,14 @@ namespace varia {
 
         operator T() const {
             return get();
+        }
+
+        operator std::string() const requires (!std::same_as<T, objects::String>) {
+            if (mStorage.is_none()) {
+                return objects::None::none_string();
+            }
+
+            return objects::detail::to_string(get());
         }
 
         const T* operator->() const {
@@ -131,7 +135,7 @@ namespace varia {
 
         friend String& operator+=(String& lhs, const char* rhs);
 
-        friend String& operator+=(String& lhs, const Stringable auto& rhs);
+        friend String& operator+=(String& lhs, const objects::Stringable auto& rhs);
 
     private:
         [[nodiscard]] const T& get() const {
@@ -196,12 +200,8 @@ namespace varia {
         return String{get(lhs) + get(rhs)};
     }
 
-    String operator+(const String& lhs, const Stringable auto& rhs) {
+    String operator+(const String& lhs, const objects::Stringable auto& rhs) {
         return lhs + String{rhs};
-    }
-
-    String operator+(const Stringable auto& lhs, const String& rhs) {
-        return String{lhs} + rhs;
     }
 
     String operator+(const Stringable auto& lhs, const char* rhs) {
@@ -222,8 +222,8 @@ namespace varia {
         return lhs;
     }
 
-    String& operator+=(String& lhs, const Stringable auto& rhs) {
-        lhs.get() += get(String{rhs});
+    String& operator+=(String& lhs, const objects::Stringable auto& rhs) {
+        lhs.get() += objects::detail::to_string(rhs);
         return lhs;
     }
 }
