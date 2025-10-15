@@ -1,40 +1,49 @@
 #pragma once
 #include <format>
+#include "var/var.h"
+
+template<varia::objects::Object T>
+struct std::formatter<varia::var<T> > : std::formatter<T> {
+    template<typename FormatContext>
+    auto format(const varia::var<T>& v, FormatContext& ctx) const {
+        return std::formatter<T>::format(get(v), ctx);
+    }
+};
 
 namespace varia {
-    namespace detail {
-        inline void vprint(std::FILE* out, const std::string&& fmt, const std::format_args args) {
-            const std::string str{std::vformat(fmt, args)};
-
-            if (str.size() == 0) {
-                return;
-            }
-
-            if (const size_t written{std::fwrite(str.data(), 1, str.size(), out)}; written != str.size()) {
-                throw std::system_error(errno, std::generic_category(), "varia::vprint fwrite failed");
-            }
-        }
-
-        inline void vprintln(std::FILE* out, const std::string&& fmt, const std::format_args args) {
-            const std::string str{std::vformat(fmt, args) + '\n'};
-
-            if (str.size() == 0) {
-                return;
-            }
-
-            if (const size_t written{std::fwrite(str.data(), 1, str.size(), out)}; written != str.size()) {
-                throw std::system_error(errno, std::generic_category(), "varia::vprint fwrite failed");
-            }
-        }
+    template<typename... Args>
+    void print(std::format_string<Args...> fmt, Args&&... args) {
+        std::cout << std::format(fmt, std::forward<Args>(args)...);
     }
 
     template<typename... Args>
-    void print(const auto& fmt, Args&&... args) {
-        detail::vprint(stdout, std::move(get(String{fmt})), std::make_format_args(std::forward<Args>(args)...));
+    void println(std::format_string<Args...> fmt, Args&&... args) {
+        std::cout << std::format(fmt, std::forward<Args>(args)...) << '\n';
     }
 
     template<typename... Args>
-    void println(const auto& fmt, Args&&... args) {
-        detail::vprintln(stdout, std::move(get(String{fmt})), std::make_format_args(std::forward<Args>(args)...));
+    void print(const Var auto& fmt, Args&&... args) {
+        std::cout << std::vformat(get(String{fmt}), std::make_format_args(std::forward<Args>(args)...));
+    }
+
+    template<typename... Args>
+    void println(const Var auto& fmt, Args&&... args) {
+        std::cout << std::vformat(get(String{fmt}), std::make_format_args(std::forward<Args>(args)...)) << '\n';
+    }
+
+    void print(const std::integral auto fmt) {
+        std::cout << fmt;
+    }
+
+    void println(const std::integral auto fmt) {
+        std::cout << fmt << '\n';
+    }
+
+    void print(const std::floating_point auto fmt) {
+        std::cout << fmt;
+    }
+
+    void println(const std::floating_point auto fmt) {
+        std::cout << fmt << '\n';
     }
 }

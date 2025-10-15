@@ -34,6 +34,11 @@ namespace varia {
             Var<T> && (objects::Arithmetic<typename T::ValueType> ||
                        std::same_as<typename T::ValueType, objects::String>);
 
+    template<typename T>
+    constexpr T&& get(T&& t) noexcept requires (!Var<T>) {
+        return std::forward<T>(t);
+    }
+
     template<Var T>
     const T::ValueType& get(const T& v) {
         return v.get();
