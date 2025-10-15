@@ -31,19 +31,14 @@ namespace varia {
         std::cout << std::vformat(get(String{fmt}), std::make_format_args(std::forward<Args>(args)...)) << '\n';
     }
 
-    void print(const std::integral auto fmt) {
-        std::cout << fmt;
+    template<typename T>
+    concept Printable = objects::Arithmetic<T> || std::same_as<T, objects::None>;
+
+    void print(const Printable auto& fmt) {
+        std::cout << String{fmt};
     }
 
-    void println(const std::integral auto fmt) {
-        std::cout << fmt << '\n';
-    }
-
-    void print(const std::floating_point auto fmt) {
-        std::cout << fmt;
-    }
-
-    void println(const std::floating_point auto fmt) {
-        std::cout << fmt << '\n';
+    void println(const Printable auto& fmt) {
+        std::cout << String{fmt} << '\n';
     }
 }

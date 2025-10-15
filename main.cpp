@@ -53,4 +53,5 @@ int main() {
     println("Are they the same? " + (id(e) == id(e2)) + " Are they the same value? " + (e == e2));
 
     println("Test {} {} {} {} {}", Num(5), e == e2, 4, "2", String("Testing"));
+    print(none);
 }
