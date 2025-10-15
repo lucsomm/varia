@@ -1,7 +1,9 @@
 #include "include/varia/using_varia.h"
 
 struct Person {
-    Person(String name) {
+    virtual ~Person() = default;
+
+    explicit Person(String name) {
         this->name = name;
     }
 
