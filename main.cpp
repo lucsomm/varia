@@ -53,5 +53,7 @@ int main() {
 
     println("Test {} {} {} {}", Num(5), 4, "2", String("Testing"));
     println(Bool(false) == none);
-    print(Bool() == none);
+    println(Bool() == none);
+
+    println(Num(Num() == none));
 }

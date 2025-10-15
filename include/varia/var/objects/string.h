@@ -3,6 +3,7 @@
 #include <limits>
 
 #include "bool.h"
+#include "num.h"
 #include "object_hierarchy.h"
 
 namespace varia::objects {
@@ -40,15 +41,25 @@ namespace varia::objects::detail {
         return str;
     }
 
+    inline String to_string(const Num value) {
+        return String{to_string(static_cast<Float>(value))};
+    }
+
     inline Int to_int(const std::string_view str) {
         Int value{};
         std::from_chars(str.data(), str.data() + str.size(), value);
         return value;
     }
 
-    inline Num to_num(const std::string_view str) {
-        Num value{};
+    inline Float to_float(const std::string_view str) {
+        Float value{};
         std::from_chars(str.data(), str.data() + str.size(), value);
         return value;
+    }
+
+    inline Num to_num(const std::string_view str) {
+        Float value{};
+        std::from_chars(str.data(), str.data() + str.size(), value);
+        return Num{value};
     }
 }

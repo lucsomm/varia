@@ -6,6 +6,7 @@
 #include "objects/none.h"
 #include "objects/string.h"
 #include "objects/bool.h"
+#include "objects/num.h"
 
 namespace varia {
     template<objects::Object T, storage::Storage StorageT = storage::DefaultStorage<T> >
@@ -34,7 +35,7 @@ namespace varia {
     concept Stringable =
             Var<T> && (objects::Arithmetic<typename T::ValueType> ||
                        std::same_as<typename T::ValueType, objects::String>) || std::same_as<typename T::ValueType,
-                objects::Bool>;
+                objects::Bool> || std::same_as<typename T::ValueType, objects::Num>;
 
     template<typename T>
     constexpr T&& get(T&& t) noexcept requires (!Var<T>) {
@@ -82,8 +83,8 @@ namespace varia {
         } {
         }
 
-        var(const objects::ArithmeticNotBool auto object) requires (std::same_as<objects::Num, T>) : mStorage{
-            StorageT::make(object)
+        var(const objects::Arithmetic auto value) requires (std::same_as<objects::Num, T>) : mStorage{
+            StorageT::make(objects::Num{value})
         } {
         }
 
@@ -94,6 +95,11 @@ namespace varia {
         // Converting constructors
         //
 
+        var(const Bool& from) requires (std::same_as<T, objects::Num>) : mStorage{
+            StorageT::make(objects::Num{static_cast<bool>(from)})
+        } {
+        }
+
         var(const objects::Stringable auto& from) requires (std::same_as<objects::String,
             T>) : mStorage{StorageT::make(objects::detail::to_string(from))} {
         }
@@ -103,7 +109,7 @@ namespace varia {
         } {
         }
 
-        explicit var(const String& from) requires (objects::Arithmetic<T>) : mStorage{
+        explicit var(const String& from) requires (objects::ArithmeticLike<T>) : mStorage{
             StorageT::make(objects::detail::to_num(varia::get(from)))
         } {
         }
@@ -122,11 +128,20 @@ namespace varia {
 
         operator bool() const requires (std::same_as<T, objects::Bool>) {
             if (mStorage.is_none()) {
-                // Should fail instead of default to false
+                // Should fail instead of default
                 return false;
             }
 
             return static_cast<bool>(get());
+        }
+
+        operator objects::Float() const requires (std::same_as<T, objects::Num>) {
+            if (mStorage.is_none()) {
+                // Should fail instead of default
+                return objects::Float{};
+            }
+
+            return static_cast<objects::Float>(get());
         }
 
         const T* operator->() const {

@@ -17,10 +17,10 @@ namespace varia::objects {
     };
 
     // Copied
-    class Bool;
     using Int = int64_t;
     using Float = double;
-    using Num = double;
+    class Bool;
+    class Num;
 
     // ImmutableRef
     using String = std::string;
@@ -29,7 +29,13 @@ namespace varia::objects {
     concept Arithmetic = std::is_arithmetic_v<T>;
 
     template<typename T>
-    concept ArithmeticNotBool = std::is_arithmetic_v<T> && !std::same_as<Bool, T>;
+    concept ArithmeticNotBool = std::is_arithmetic_v<T> && !std::same_as<T, bool>;
+
+    template<typename T>
+    concept ArithmeticLikeNotBool = Arithmetic<T> || std::same_as<T, Num>;
+
+    template<typename T>
+    concept ArithmeticLike = ArithmeticLikeNotBool<T> || std::same_as<T, Bool>;
 
     template<typename T>
     concept Fundamental = std::is_fundamental_v<T>;
