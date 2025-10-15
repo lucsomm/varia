@@ -3,10 +3,11 @@
 #include "var/var.h"
 
 template<varia::objects::Object T>
-struct std::formatter<varia::var<T> > : std::formatter<T> {
+struct std::formatter<varia::var<T> > : std::formatter<std::string> {
     template<typename FormatContext>
     auto format(const varia::var<T>& v, FormatContext& ctx) const {
-        return std::formatter<T>::format(get(v), ctx);
+        return std::formatter<std::string>::format(
+            get(varia::var<varia::objects::String, varia::storage::CopiedStorage<varia::objects::String> >{v}), ctx);
     }
 };
 
@@ -32,7 +33,7 @@ namespace varia {
     }
 
     template<typename T>
-    concept Printable = objects::Arithmetic<T> || std::same_as<T, objects::None>;
+    concept Printable = objects::Arithmetic<T> || std::same_as<T, objects::None> || std::same_as<T, objects::Bool>;
 
     void print(const Printable auto& fmt) {
         std::cout << String{fmt};

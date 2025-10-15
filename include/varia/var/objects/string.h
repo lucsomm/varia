@@ -1,6 +1,8 @@
 #pragma once
 #include <charconv>
 #include <limits>
+
+#include "bool.h"
 #include "object_hierarchy.h"
 
 namespace varia::objects {
@@ -10,14 +12,19 @@ namespace varia::objects {
 }
 
 namespace varia::objects::detail {
-    String to_string(const None n) {
+    inline String to_string(const None n) {
         return String{"none"};
     }
 
-    String to_string(const bool value) {
+    inline String to_string(const Bool value) {
+        // None conditional is checked inside of var instead
         return String{
-            value ? "true" : "false"
+            static_cast<bool>(value) ? "true" : "false"
         };
+    }
+
+    inline const String&& to_string(const String& str) {
+        return std::forward<const String>(str);
     }
 
     String to_string(const std::integral auto value) {

@@ -17,7 +17,7 @@ namespace varia::objects {
     };
 
     // Copied
-    using Bool = bool;
+    class Bool;
     using Int = int64_t;
     using Float = double;
     using Num = double;

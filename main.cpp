@@ -44,7 +44,6 @@ int main() {
     a + "";
     Bool(false) + "" + a;
 
-
     println("a: " + a + " b: " + b);
     println("a == b? " + (Num(a) == b));
 
@@ -52,6 +51,7 @@ int main() {
     var<Person> e2 = Employee("Bob", "Contributor");
     println("Are they the same? " + (id(e) == id(e2)) + " Are they the same value? " + (e == e2));
 
-    println("Test {} {} {} {} {}", Num(5), e == e2, 4, "2", String("Testing"));
-    print(none);
+    println("Test {} {} {} {}", Num(5), 4, "2", String("Testing"));
+    println(Bool(false) == none);
+    print(Bool() == none);
 }

@@ -5,6 +5,7 @@
 #include "storage/storage.h"
 #include "objects/none.h"
 #include "objects/string.h"
+#include "objects/bool.h"
 
 namespace varia {
     template<objects::Object T, storage::Storage StorageT = storage::DefaultStorage<T> >
@@ -32,7 +33,8 @@ namespace varia {
     template<typename T>
     concept Stringable =
             Var<T> && (objects::Arithmetic<typename T::ValueType> ||
-                       std::same_as<typename T::ValueType, objects::String>);
+                       std::same_as<typename T::ValueType, objects::String>) || std::same_as<typename T::ValueType,
+                objects::Bool>;
 
     template<typename T>
     constexpr T&& get(T&& t) noexcept requires (!Var<T>) {
@@ -75,6 +77,11 @@ namespace varia {
             requires (!std::same_as<objects::None, T>) : mStorage{StorageT::make()} {
         }
 
+        var(const bool value) requires (std::same_as<T, objects::Bool>) : mStorage{
+            StorageT::make(objects::Bool{value})
+        } {
+        }
+
         var(const objects::ArithmeticNotBool auto object) requires (std::same_as<objects::Num, T>) : mStorage{
             StorageT::make(object)
         } {
@@ -111,6 +118,15 @@ namespace varia {
             }
 
             return objects::detail::to_string(get());
+        }
+
+        operator bool() const requires (std::same_as<T, objects::Bool>) {
+            if (mStorage.is_none()) {
+                // Should fail instead of default to false
+                return false;
+            }
+
+            return static_cast<bool>(get());
         }
 
         const T* operator->() const {
