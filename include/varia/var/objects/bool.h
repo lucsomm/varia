@@ -4,7 +4,7 @@
 #include "none.h"
 
 namespace varia::objects {
-    class Bool : CopiedObject {
+    class Bool : CopiedObject, StandardObject {
     public:
         constexpr explicit Bool(const bool value) : mState{static_cast<State>(value)} {
         }

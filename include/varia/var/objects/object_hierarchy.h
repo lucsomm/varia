@@ -4,6 +4,9 @@
 #include <string>
 
 namespace varia::objects {
+    struct StandardObject {
+    };
+
     struct VarIncompatibleObject {
     };
 

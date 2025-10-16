@@ -34,8 +34,8 @@ namespace varia {
     template<typename T>
     concept Stringable =
             Var<T> && (objects::Arithmetic<typename T::ValueType> ||
-                       std::same_as<typename T::ValueType, objects::String>) || std::same_as<typename T::ValueType,
-                objects::Bool> || std::same_as<typename T::ValueType, objects::Num>;
+                       std::same_as<typename T::ValueType, objects::String>) ||
+            std::is_base_of_v<objects::StandardObject, typename T::ValueType>;
 
     template<typename T>
     constexpr T&& get(T&& t) noexcept requires (!Var<T>) {

@@ -6,7 +6,7 @@ namespace varia {
     class var;
 
     namespace objects {
-        struct None : CopiedObject {
+        struct None : CopiedObject, StandardObject {
             static std::string& none_string() {
                 static std::string str{"none"};
                 return str;

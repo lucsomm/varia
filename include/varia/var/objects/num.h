@@ -4,7 +4,7 @@
 #include "object_hierarchy.h"
 
 namespace varia::objects {
-    class Num : CopiedObject {
+    class Num : CopiedObject, StandardObject {
     public:
         explicit Num(const Arithmetic auto value) : mValue{static_cast<Float>(value)} {
         }

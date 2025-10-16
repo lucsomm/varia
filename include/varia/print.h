@@ -33,8 +33,7 @@ namespace varia {
     }
 
     template<typename T>
-    concept Printable = objects::Arithmetic<T> || std::same_as<T, objects::None> || std::same_as<T, objects::Bool> ||
-                        std::same_as<T, objects::Num>;
+    concept Printable = objects::Arithmetic<T> || std::is_base_of_v<objects::StandardObject, T>;
 
     void print(const Printable auto& fmt) {
         std::cout << String{fmt};
