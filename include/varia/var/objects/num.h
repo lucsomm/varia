@@ -1,35 +1,43 @@
 #pragma once
-#include <optional>
+#include <variant>
 
 #include "object_hierarchy.h"
 
 namespace varia::objects {
     class Num : CopiedObject, StandardObject {
     public:
-        explicit Num(const Arithmetic auto value) : mValue{static_cast<Float>(value)} {
+        explicit Num(const Arithmetic auto value) : mValue(value) {
         }
 
         explicit operator Int() const {
-            if (!mValue.has_value()) {
-                return Int{};
+            if (std::holds_alternative<Int>(mValue)) {
+                return std::get<Int>(mValue);
             }
 
-            return static_cast<Int>(*mValue);
+            if (std::holds_alternative<Float>(mValue)) {
+                return static_cast<Int>(std::get<Float>(mValue));
+            }
+
+            return Int{};
         }
 
         explicit operator Float() const {
-            if (!mValue.has_value()) {
-                return Float{};
+            if (std::holds_alternative<Float>(mValue)) {
+                return std::get<Float>(mValue);
             }
 
-            return *mValue;
+            if (std::holds_alternative<Int>(mValue)) {
+                return static_cast<Float>(std::get<Int>(mValue));
+            }
+
+            return Float{};
         }
 
         bool operator==(const Num& other) const {
-            return mValue == other.mValue;
+            return static_cast<Float>(*this) == static_cast<Float>(other);
         }
 
     private:
-        std::optional<Float> mValue;
+        std::variant<None, Int, Float> mValue{none};
     };
 }
