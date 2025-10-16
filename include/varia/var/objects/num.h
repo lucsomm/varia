@@ -6,6 +6,8 @@
 namespace varia::objects {
     class Num : CopiedObject, StandardObject {
     public:
+        Num() = default;
+
         explicit Num(const Arithmetic auto value) : mValue(value) {
         }
 
@@ -35,6 +37,18 @@ namespace varia::objects {
 
         bool operator==(const Num& other) const {
             return static_cast<Float>(*this) == static_cast<Float>(other);
+        }
+
+        Num operator+(const Num& other) const {
+            if (std::holds_alternative<None>(mValue) || std::holds_alternative<None>(other.mValue)) {
+                return Num{};
+            }
+
+            if (std::holds_alternative<Float>(mValue) || std::holds_alternative<Float>(other.mValue)) {
+                return Num{static_cast<Float>(*this) + static_cast<Float>(other)};
+            }
+
+            return Num{static_cast<Int>(*this) + static_cast<Int>(other)};
         }
 
     private:
