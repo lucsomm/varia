@@ -38,8 +38,7 @@ int main() {
     var s = "A";
     var s1 = s;
     s1->append(" & B");
-    s1 = "C";
-    std::cout << s->c_str() << '\n';
+    std::cout << s->c_str() << " " << s1->c_str() << '\n';
 
     var x = "5";
     var y = "6";

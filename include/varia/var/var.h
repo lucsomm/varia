@@ -4,6 +4,7 @@
 
 #include "objects/object_hierarchy.h"
 #include "storage/copied_storage.h"
+#include "storage/immutable_shared_storage.h"
 #include "storage/shared_storage.h"
 #include "storage/storage.h"
 
@@ -26,7 +27,7 @@ namespace varia {
     using Int = var<objects::Int, CopiedStorage>;
     using Float = var<objects::Float, CopiedStorage>;
     using Num = var<objects::Num, CopiedStorage>;
-    using String = var<objects::String>;
+    using String = var<objects::String, ImmutableSharedStorage>;
 
     template<typename T, template <typename > typename S> requires Storage<S<T> >
     class var {
@@ -87,9 +88,9 @@ namespace varia {
     template<std::floating_point T>
     var(T) -> var<objects::Num, CopiedStorage>;
 
-    var(const char*) -> var<objects::String>;
+    var(const char*) -> var<objects::String, ImmutableSharedStorage>;
 
-    var(std::string_view) -> var<objects::String>;
+    var(std::string_view) -> var<objects::String, ImmutableSharedStorage>;
 
     template<typename L, typename R>
     concept LeftAddable = requires(L lhs, R rhs)
