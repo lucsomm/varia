@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+
+#include "objects/object_hierarchy.h"
 #include "storage/copied_storage.h"
 #include "storage/shared_storage.h"
 #include "storage/storage.h"
@@ -20,9 +22,11 @@ namespace varia {
     template<typename T>
     concept Var = is_var<T>::value;
 
-    using Bool = var<bool, CopiedStorage>;
-    using Num = var<double, CopiedStorage>;
-    using String = var<std::string>;
+    using Bool = var<objects::Bool, CopiedStorage>;
+    using Int = var<objects::Int, CopiedStorage>;
+    using Float = var<objects::Float, CopiedStorage>;
+    using Num = var<objects::Num, CopiedStorage>;
+    using String = var<objects::String>;
 
     template<typename T, template <typename > typename S> requires Storage<S<T> >
     class var {
@@ -40,52 +44,52 @@ namespace varia {
 
         var& operator=(var&&) = default;
 
-        var(const object_type& vt) : mValue{storage_policy::make(vt)} {
+        var(const object_type& vt) : mStorage{storage_policy::make(vt)} {
         }
 
         template<typename... Args>
-        var(Args... args) : mValue{storage_policy::make(std::forward<Args>(args)...)} {
+        var(Args... args) : mStorage{storage_policy::make(std::forward<Args>(args)...)} {
         }
 
         template<std::derived_from<object_type> Derived>
-        var(const var<Derived>& from) : mValue{from.get_storage()} {
+        var(const var<Derived>& from) : mStorage{from.get_storage()} {
         }
 
         [[nodiscard]] const storage_policy& get_storage() const {
-            return mValue;
+            return mStorage;
         }
 
         const object_type* operator->() const {
-            return mValue.get();
+            return mStorage.get();
         }
 
         object_type* operator->() {
-            return mValue.get();
+            return mStorage.get();
         }
 
         const object_type& operator*() const {
-            return *mValue.get();
+            return *mStorage.get();
         }
 
         object_type& operator*() {
-            return *mValue.get();
+            return *mStorage.get();
         }
 
     private:
-        storage_policy mValue{};
+        storage_policy mStorage{};
     };
 
-    var(bool) -> var<bool, CopiedStorage>;
+    var(bool) -> var<objects::Bool, CopiedStorage>;
 
     template<std::integral T>
-    var(T) -> var<double, CopiedStorage>;
+    var(T) -> var<objects::Num, CopiedStorage>;
 
     template<std::floating_point T>
-    var(T) -> var<double, CopiedStorage>;
+    var(T) -> var<objects::Num, CopiedStorage>;
 
-    var(const char*) -> var<std::string>;
+    var(const char*) -> var<objects::String>;
 
-    var(std::string_view) -> var<std::string>;
+    var(std::string_view) -> var<objects::String>;
 
     template<typename L, typename R>
     concept LeftAddable = requires(L lhs, R rhs)

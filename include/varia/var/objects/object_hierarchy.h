@@ -1,11 +1,22 @@
 #pragma once
+#include <cstdint>
+#include <string>
 
-struct CopiedObject {
-};
+namespace varia::objects {
+    struct CopiedObject {
+    };
 
-struct ImmutableSharedObject {
-};
+    struct ImmutableSharedObject {
+    };
 
-struct SharedObject {
-};
+    struct SharedObject {
+    };
+
+    using Bool = bool;
+    using Int = int64_t;
+    using Float = double;
+    using Num = double;
+
+    using String = std::string;
+}
 

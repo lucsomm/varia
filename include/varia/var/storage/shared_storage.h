@@ -14,25 +14,25 @@ namespace varia {
         }
 
         template<std::derived_from<object_type> Derived>
-        explicit SharedStorage(const SharedStorage<Derived>& other) : mValue{other.get_shared_ptr()} {
+        explicit SharedStorage(const SharedStorage<Derived>& other) : mObject{other.get_shared_ptr()} {
         }
 
         [[nodiscard]] const std::shared_ptr<object_type>& get_shared_ptr() const {
-            return mValue;
+            return mObject;
         }
 
         [[nodiscard]] const object_type* get() const {
-            return mValue.get();
+            return mObject.get();
         }
 
         [[nodiscard]] object_type* get() {
-            return mValue.get();
+            return mObject.get();
         }
 
     private:
-        explicit SharedStorage(std::shared_ptr<object_type> ptr) : mValue{ptr} {
+        explicit SharedStorage(std::shared_ptr<object_type> ptr) : mObject{ptr} {
         }
 
-        std::shared_ptr<object_type> mValue;
+        std::shared_ptr<object_type> mObject;
     };
 }

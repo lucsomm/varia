@@ -12,16 +12,16 @@ public:
     }
 
     [[nodiscard]] const object_type* get() const {
-        return &mValue;
+        return &mObject;
     }
 
     [[nodiscard]] object_type* get() {
-        return &mValue;
+        return &mObject;
     }
 
 private:
-    explicit CopiedStorage(const object_type& value) : mValue{value} {
+    explicit CopiedStorage(const object_type& value) : mObject{value} {
     }
 
-    object_type mValue{};
+    object_type mObject{};
 };
