@@ -23,7 +23,9 @@ varclass(B,
 int main() {
     std::cout << "Hello, World!" << '\n';
     var i = 5;
-    var j = i;
+    var j = i + 5;
+    i += j + 2;
+
 
     var a = A(4);
     A b = B();
@@ -37,5 +39,15 @@ int main() {
     var s1 = s;
     s1->append(" & B");
     s1 = "C";
-    std::cout << s->c_str();
+    std::cout << s->c_str() << '\n';
+
+    var x = "5";
+    var y = "6";
+    std::cout << (x + y)->c_str() << '\n';
+    std::cout << (y + "7")->c_str() << '\n';
+    std::cout << ("7" + y)->c_str() << '\n';
+
+    y += x;
+    y += "b";
+    std::cout << y->c_str() << '\n';
 }

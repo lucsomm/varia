@@ -9,6 +9,17 @@ namespace varia {
     template<typename T, template <typename > typename S = SharedStorage> requires Storage<S<T> >
     class var;
 
+    template<typename>
+    struct is_var : std::false_type {
+    };
+
+    template<typename T, template <typename > typename S>
+    struct is_var<var<T, S> > : std::true_type {
+    };
+
+    template<typename T>
+    concept Var = is_var<T>::value;
+
     using Bool = var<bool, CopiedStorage>;
     using Num = var<double, CopiedStorage>;
     using String = var<std::string>;
@@ -37,7 +48,7 @@ namespace varia {
         }
 
         template<std::derived_from<object_type> Derived>
-        var(const var<Derived>& from) requires std::is_polymorphic_v<object_type> : mValue{from.get_storage()} {
+        var(const var<Derived>& from) : mValue{from.get_storage()} {
         }
 
         [[nodiscard]] const storage_policy& get_storage() const {
@@ -50,6 +61,14 @@ namespace varia {
 
         object_type* operator->() {
             return mValue.get();
+        }
+
+        const object_type& operator*() const {
+            return *mValue.get();
+        }
+
+        object_type& operator*() {
+            return *mValue.get();
         }
 
     private:
@@ -67,4 +86,43 @@ namespace varia {
     var(const char*) -> var<std::string>;
 
     var(std::string_view) -> var<std::string>;
+
+    template<typename L, typename R>
+    concept LeftAddable = requires(L lhs, R rhs)
+    {
+        { lhs + rhs } -> std::convertible_to<L>;
+        { lhs += rhs } -> std::same_as<L&>;
+    };
+
+    template<Var L, Var R>
+        requires LeftAddable<typename L::object_type, typename R::object_type>
+    L operator+(const L& lhs, const R& rhs) {
+        return L{*lhs + *rhs};
+    }
+
+    template<Var L, typename R>
+        requires LeftAddable<typename L::object_type, R>
+    L operator+(const L& lhs, const R& rhs) {
+        return L{*lhs + rhs};
+    }
+
+    template<typename L, Var R>
+        requires LeftAddable<typename R::object_type, L>
+    R operator+(const L& lhs, const R& rhs) {
+        return R{lhs + *rhs};
+    }
+
+    template<Var L, Var R>
+        requires LeftAddable<typename L::object_type, typename R::object_type>
+    L& operator+=(L& lhs, const R& rhs) {
+        *lhs = *lhs + *rhs;
+        return lhs;
+    }
+
+    template<Var L, typename R>
+        requires LeftAddable<typename L::object_type, R>
+    L& operator+=(L& lhs, const R& rhs) {
+        *lhs = *lhs + *rhs;
+        return lhs;
+    }
 }
