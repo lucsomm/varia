@@ -9,7 +9,7 @@
 #include "storage/storage.h"
 
 namespace varia {
-    template<typename T, template <typename > typename S = SharedStorage> requires Storage<S<T> >
+    template<typename T, template <typename > typename S = SharedStorage> requires Storage<S<std::decay_t<T> > >
     class var;
 
     template<typename>
@@ -58,13 +58,14 @@ namespace varia {
     using String = var<objects::String, ImmutableSharedStorage>;
 
     template<typename T>
-    concept Arithmetic = std::is_arithmetic_v<T> || (Var<T> && std::is_arithmetic_v<typename T::object_type>);
+    concept Arithmetic = std::is_arithmetic_v<std::decay_t<T> > || (
+                             Var<T> && std::is_arithmetic_v<typename std::decay_t<T>::object_type>);
 
-    template<typename T, template <typename > typename S> requires Storage<S<T> >
+    template<typename T, template <typename > typename S> requires Storage<S<std::decay_t<T> > >
     class var {
     public:
-        using object_type = T;
-        using storage_policy = S<T>;
+        using object_type = std::decay_t<T>;
+        using storage_policy = S<object_type>;
 
         ~var() = default;
 
