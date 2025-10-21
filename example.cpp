@@ -49,4 +49,7 @@ int main() {
     y += x;
     y += "b";
     std::cout << y->c_str() << '\n';
+
+    String conv = 3;
+    String conv2 = Num(45);
 }

@@ -23,11 +23,29 @@ namespace varia {
     template<typename T>
     concept Var = is_var<T>::value;
 
+    template<typename T>
+    decltype(auto) get(T&& t) {
+        return std::forward<T>(t);
+    }
+
+    template<Var T>
+    const T::object_type& get(const T& t) {
+        return *t;
+    }
+
+    template<Var T>
+    T::object_type& get(T& t) {
+        return *t;
+    }
+
     using Bool = var<objects::Bool, CopiedStorage>;
     using Int = var<objects::Int, CopiedStorage>;
     using Float = var<objects::Float, CopiedStorage>;
     using Num = var<objects::Num, CopiedStorage>;
     using String = var<objects::String, ImmutableSharedStorage>;
+
+    template<typename T>
+    concept Arithmetic = std::is_arithmetic_v<T> || (Var<T> && std::is_arithmetic_v<typename T::object_type>);
 
     template<typename T, template <typename > typename S> requires Storage<S<T> >
     class var {
@@ -54,6 +72,15 @@ namespace varia {
 
         template<std::derived_from<object_type> Derived>
         var(const var<Derived>& from) : mStorage{from.get_storage()} {
+        }
+
+        //
+        // String coercion constructors
+        //
+
+        var(const Arithmetic auto& from) requires std::same_as<object_type, objects::String> : mStorage{
+            storage_policy::make(std::to_string(get(from)))
+        } {
         }
 
         [[nodiscard]] const storage_policy& get_storage() const {
