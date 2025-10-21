@@ -21,7 +21,20 @@ namespace varia {
     };
 
     template<typename T>
-    concept Var = is_var<T>::value;
+    concept Var = is_var<std::decay_t<T> >::value;
+
+    template<typename T>
+    struct Get {
+        using type = T;
+    };
+
+    template<Var T>
+    struct Get<T> {
+        using type = T::object_type;
+    };
+
+    template<typename T>
+    using get_t = Get<std::decay_t<T> >::type;
 
     template<typename T>
     decltype(auto) get(T&& t) {
@@ -120,41 +133,24 @@ namespace varia {
     var(std::string_view) -> var<objects::String, ImmutableSharedStorage>;
 
     template<typename L, typename R>
-    concept LeftAddable = requires(L lhs, R rhs)
-    {
-        { lhs + rhs } -> std::convertible_to<L>;
-        { lhs += rhs } -> std::same_as<L&>;
-    };
+    concept Addable = [] {
+        using std::operator+; // MSVC ADL compatability
+        return requires(L lhs, R rhs)
+        {
+            { lhs + rhs } -> std::constructible_from<std::common_type_t<L, R> >;
+        };
+    }();
 
-    template<Var L, Var R>
-        requires LeftAddable<typename L::object_type, typename R::object_type>
-    L operator+(const L& lhs, const R& rhs) {
-        return L{*lhs + *rhs};
+    template<typename L, typename R>
+        requires Addable<get_t<L>, get_t<R> >
+    auto operator+(const L& lhs, const R& rhs) {
+        return std::common_type_t<L, R>{get(lhs) + get(rhs)};
     }
 
     template<Var L, typename R>
-        requires LeftAddable<typename L::object_type, R>
-    L operator+(const L& lhs, const R& rhs) {
-        return L{*lhs + rhs};
-    }
-
-    template<typename L, Var R>
-        requires LeftAddable<typename R::object_type, L>
-    R operator+(const L& lhs, const R& rhs) {
-        return R{lhs + *rhs};
-    }
-
-    template<Var L, Var R>
-        requires LeftAddable<typename L::object_type, typename R::object_type>
+        requires Addable<get_t<L>, get_t<R> >
     L& operator+=(L& lhs, const R& rhs) {
-        *lhs = *lhs + *rhs;
-        return lhs;
-    }
-
-    template<Var L, typename R>
-        requires LeftAddable<typename L::object_type, R>
-    L& operator+=(L& lhs, const R& rhs) {
-        *lhs = *lhs + *rhs;
+        get(lhs) = get(lhs) + get(rhs);
         return lhs;
     }
 }
