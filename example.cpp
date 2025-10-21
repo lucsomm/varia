@@ -51,5 +51,8 @@ int main() {
     std::cout << y->c_str() << '\n';
 
     String conv = 3;
-    String conv2 = Num(45);
+    conv += 5;
+    String conv2 = conv + 7;
+
+    std::cout << conv2->c_str() << '\n';
 }

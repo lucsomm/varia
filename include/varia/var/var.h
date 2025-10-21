@@ -88,10 +88,6 @@ namespace varia {
         var(const var<Derived>& from) : mStorage{from.get_storage()} {
         }
 
-        //
-        // String coercion constructors
-        //
-
         var(const Arithmetic auto& from) requires std::same_as<object_type, objects::String> : mStorage{
             storage_policy::make(std::to_string(get(from)))
         } {
@@ -133,19 +129,39 @@ namespace varia {
 
     var(std::string_view) -> var<objects::String, ImmutableSharedStorage>;
 
+    template<typename T>
+    concept StringLike = std::same_as<T, String> || std::constructible_from<std::string, T>;
+
+    template<typename T>
+    concept StringCoercible = !StringLike<T> && std::constructible_from<String, T>;
+
+    String operator+(const String& lhs, const StringCoercible auto& rhs) {
+        return String{get(lhs) + std::to_string(get(rhs))};
+    }
+
+    String& operator+=(String& lhs, const StringCoercible auto& rhs) {
+        lhs = lhs + rhs;
+        return lhs;
+    }
+
+    // needed for std::operator+ to be qualified for lookup inside the Addable concept on MSVC
     template<typename L, typename R>
-    concept Addable = [] {
-        using std::operator+; // MSVC ADL compatability
-        return requires(L lhs, R rhs)
-        {
-            { lhs + rhs } -> std::constructible_from<std::common_type_t<L, R> >;
-        };
-    }();
+    constexpr decltype(auto) adl_helper_plus_op(L&& l, R&& r) {
+        using std::operator+;
+        return std::forward<L>(l) + std::forward<R>(r);
+    }
+
+    template<typename L, typename R>
+    concept Addable = requires(L lhs, R rhs)
+    {
+        typename std::common_type_t<L, R>;
+        { adl_helper_plus_op(lhs, rhs) } -> std::convertible_to<std::common_type_t<L, R> >;
+    };
 
     template<typename L, typename R>
         requires Addable<get_t<L>, get_t<R> >
     auto operator+(const L& lhs, const R& rhs) {
-        return std::common_type_t<L, R>{get(lhs) + get(rhs)};
+        return std::common_type_t<L, R>(get(lhs) + get(rhs));
     }
 
     template<Var L, typename R>
