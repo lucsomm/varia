@@ -12,29 +12,33 @@ namespace varia {
     template<typename T, template <typename > typename S = SharedStorage> requires Storage<S<std::decay_t<T> > >
     class var;
 
-    template<typename>
-    struct is_var : std::false_type {
-    };
+    namespace detail {
+        template<typename>
+        struct is_var : std::false_type {
+        };
 
-    template<typename T, template <typename > typename S>
-    struct is_var<var<T, S> > : std::true_type {
-    };
-
-    template<typename T>
-    concept Var = is_var<std::decay_t<T> >::value;
-
-    template<typename T>
-    struct Get {
-        using type = T;
-    };
-
-    template<Var T>
-    struct Get<T> {
-        using type = T::object_type;
-    };
+        template<typename T, template <typename > typename S>
+        struct is_var<var<T, S> > : std::true_type {
+        };
+    }
 
     template<typename T>
-    using get_t = Get<std::decay_t<T> >::type;
+    concept Var = detail::is_var<std::decay_t<T> >::value;
+
+    namespace detail {
+        template<typename T>
+        struct Get {
+            using type = T;
+        };
+
+        template<Var T>
+        struct Get<T> {
+            using type = T::object_type;
+        };
+    }
+
+    template<typename T>
+    using get_t = detail::Get<std::decay_t<T> >::type;
 
     template<typename T>
     decltype(auto) get(T&& t) {
@@ -144,18 +148,20 @@ namespace varia {
         return lhs;
     }
 
-    // needed for std::operator+ to be qualified for lookup inside the Addable concept on MSVC
-    template<typename L, typename R>
-    constexpr decltype(auto) adl_helper_plus_op(L&& l, R&& r) {
-        using std::operator+;
-        return std::forward<L>(l) + std::forward<R>(r);
+    namespace detail {
+        // needed for std::operator+ to be qualified for lookup inside the Addable concept on MSVC
+        template<typename L, typename R>
+        constexpr decltype(auto) adl_helper_plus_op(L&& l, R&& r) {
+            using std::operator+;
+            return std::forward<L>(l) + std::forward<R>(r);
+        }
     }
 
     template<typename L, typename R>
     concept Addable = requires(L lhs, R rhs)
     {
         typename std::common_type_t<L, R>;
-        { adl_helper_plus_op(lhs, rhs) } -> std::convertible_to<std::common_type_t<L, R> >;
+        { detail::adl_helper_plus_op(lhs, rhs) } -> std::convertible_to<std::common_type_t<L, R> >;
     };
 
     template<typename L, typename R>
