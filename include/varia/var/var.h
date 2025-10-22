@@ -134,6 +134,11 @@ namespace varia {
 
     var(std::string_view) -> var<objects::String, ImmutableSharedStorage>;
 
+    std::ostream& operator<<(std::ostream& os, const Var auto& v) {
+        os << objects::to_string(get(v));
+        return os;
+    }
+
     template<typename T>
     concept StringLike = std::same_as<T, String> || std::constructible_from<std::string, T>;
 

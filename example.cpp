@@ -25,6 +25,7 @@ int main() {
     var i = 5;
     var j = i + 5;
     i += j + 2;
+    std::cout << i << '\n';
 
 
     var a = A(4);
@@ -38,22 +39,22 @@ int main() {
     var s = "A";
     var s1 = s;
     s1->append(" & B");
-    std::cout << s->c_str() << " " << s1->c_str() << '\n';
+    std::cout << s << " " << s1 << '\n';
 
     var x = "5";
     var y = "6";
-    std::cout << (x + y)->c_str() << '\n';
-    std::cout << (y + "7")->c_str() << '\n';
-    std::cout << ("7" + y)->c_str() << '\n';
+    std::cout << (x + y) << '\n';
+    std::cout << (y + "7") << '\n';
+    std::cout << ("7" + y) << '\n';
 
     y += x;
     y += "b";
-    std::cout << y->c_str() << '\n';
+    std::cout << y << '\n';
 
     String conv = 3;
     conv += 5;
     var bo = false;
     String conv2 = false + conv + bo + true;
 
-    std::cout << conv2->c_str() << '\n';
+    std::cout << conv2 << '\n';
 }

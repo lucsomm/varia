@@ -1,9 +1,18 @@
 #pragma once
 #include <charconv>
+#include <limits>
 
 #include "object_hierarchy.h"
 
 namespace varia::objects {
+    inline const String& to_string(const String& str) {
+        return str;
+    }
+
+    inline String&& to_string(String&& str) {
+        return std::move(str);
+    }
+
     inline String to_string(const bool cond) {
         return String{cond ? "true" : "false"};
     }
