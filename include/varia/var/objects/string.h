@@ -5,11 +5,11 @@
 #include "object_hierarchy.h"
 
 namespace varia::objects {
-    inline const String& to_string(const String& str) {
+    inline const String& to_string(const String& str) noexcept {
         return str;
     }
 
-    inline String&& to_string(String&& str) {
+    inline String&& to_string(String&& str) noexcept {
         return std::move(str);
     }
 

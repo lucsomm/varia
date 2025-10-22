@@ -14,16 +14,16 @@ namespace varia {
         }
 
         template<std::derived_from<object_type> Derived>
-        explicit ImmutableSharedStorage(const ImmutableSharedStorage<Derived>& other) : mObject{
+        explicit ImmutableSharedStorage(const ImmutableSharedStorage<Derived>& other) noexcept : mObject{
             other.get_shared_ptr()
         } {
         }
 
-        [[nodiscard]] const std::shared_ptr<object_type>& get_shared_ptr() const {
+        [[nodiscard]] const std::shared_ptr<object_type>& get_shared_ptr() const noexcept {
             return mObject;
         }
 
-        [[nodiscard]] const object_type* get() const {
+        [[nodiscard]] const object_type* get() const noexcept {
             return mObject.get();
         }
 
@@ -36,7 +36,7 @@ namespace varia {
         }
 
     private:
-        explicit ImmutableSharedStorage(std::shared_ptr<object_type> ptr) : mObject{ptr} {
+        explicit ImmutableSharedStorage(std::shared_ptr<object_type> ptr) noexcept : mObject{ptr} {
         }
 
         std::shared_ptr<object_type> mObject;

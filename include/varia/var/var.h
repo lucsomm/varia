@@ -42,17 +42,17 @@ namespace varia {
     using get_t = detail::Get<std::decay_t<T> >::type;
 
     template<typename T>
-    decltype(auto) get(T&& t) {
+    decltype(auto) get(T&& t) noexcept {
         return std::forward<T>(t);
     }
 
     template<Var T>
-    const T::object_type& get(const T& t) {
+    const T::object_type& get(const T& t) noexcept {
         return *t;
     }
 
     template<Var T>
-    T::object_type& get(T& t) {
+    T::object_type& get(T& t) noexcept {
         return *t;
     }
 
@@ -98,23 +98,23 @@ namespace varia {
         } {
         }
 
-        [[nodiscard]] const storage_policy& get_storage() const {
+        [[nodiscard]] const storage_policy& get_storage() const noexcept {
             return mStorage;
         }
 
-        const object_type* operator->() const {
+        const object_type* operator->() const noexcept {
             return mStorage.get();
         }
 
-        object_type* operator->() {
+        object_type* operator->() noexcept {
             return mStorage.get();
         }
 
-        const object_type& operator*() const {
+        const object_type& operator*() const noexcept {
             return *mStorage.get();
         }
 
-        object_type& operator*() {
+        object_type& operator*() noexcept {
             return *mStorage.get();
         }
 
@@ -161,7 +161,7 @@ namespace varia {
     namespace detail {
         // needed for std::operator+ to be qualified for lookup inside the Addable concept on MSVC
         template<typename L, typename R>
-        constexpr decltype(auto) adl_helper_plus_op(L&& l, R&& r) {
+        constexpr decltype(auto) adl_helper_plus_op(L&& l, R&& r) noexcept {
             using std::operator+;
             return std::forward<L>(l) + std::forward<R>(r);
         }
