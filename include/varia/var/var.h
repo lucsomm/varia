@@ -61,6 +61,10 @@ namespace varia {
     using Float = var<objects::Float, CopiedStorage>;
     using Num = var<objects::Num, CopiedStorage>;
     using String = var<objects::String, ImmutableSharedStorage>;
+    template<typename T>
+    using Array = var<objects::Array<T> >;
+    template<typename K, typename V>
+    using Map = var<objects::Map<K, V> >;
 
     template<typename T>
     concept Arithmetic = std::is_arithmetic_v<std::decay_t<T> > || (

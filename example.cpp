@@ -27,6 +27,8 @@ int main() {
     i *= j - 2 % i;
     println(i);
 
+    Array<Int> arr = (5, 5, 4, 4);
+    println("Array size {}", arr->size());
 
     var a = A(4);
     A b = B();
