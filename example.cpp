@@ -22,9 +22,9 @@ varclass(B,
 
 int main() {
     println("Hello, World!");
-    var i = 5;
+    Int i = 5;
     var j = i + 5;
-    i += j + 2;
+    i *= j - 2 % i;
     println(i);
 
 
