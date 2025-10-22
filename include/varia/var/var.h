@@ -3,6 +3,7 @@
 #include <string>
 
 #include "objects/object_hierarchy.h"
+#include "objects/string.h"
 #include "storage/copied_storage.h"
 #include "storage/immutable_shared_storage.h"
 #include "storage/shared_storage.h"
@@ -93,7 +94,7 @@ namespace varia {
         }
 
         var(const Arithmetic auto& from) requires std::same_as<object_type, objects::String> : mStorage{
-            storage_policy::make(std::to_string(get(from)))
+            storage_policy::make(objects::to_string(get(from)))
         } {
         }
 
@@ -140,7 +141,7 @@ namespace varia {
     concept StringCoercible = !StringLike<T> && std::constructible_from<String, T>;
 
     String operator+(const String& lhs, const StringCoercible auto& rhs) {
-        return String{get(lhs) + std::to_string(get(rhs))};
+        return String{get(lhs) + objects::to_string(get(rhs))};
     }
 
     String& operator+=(String& lhs, const StringCoercible auto& rhs) {
