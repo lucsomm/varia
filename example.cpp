@@ -28,6 +28,7 @@ int main() {
     println(i);
 
     Array<Int> arr = (5, 5, 4, 4);
+    arr->resize(i);
     println("Array size {}", arr->size());
 
     var a = A(4);

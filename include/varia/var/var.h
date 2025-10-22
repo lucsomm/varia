@@ -106,6 +106,14 @@ namespace varia {
             return mStorage;
         }
 
+        operator const object_type&() const noexcept {
+            return *mStorage.get();
+        }
+
+        operator object_type&() noexcept {
+            return *mStorage.get();
+        }
+
         const object_type* operator->() const noexcept {
             return mStorage.get();
         }
@@ -163,102 +171,57 @@ namespace varia {
     }
 
     template<typename L, typename R>
-    concept Addable = requires(L lhs, R rhs)
-    {
-        typename std::common_type_t<L, R>;
-        { lhs + rhs } -> std::convertible_to<std::common_type_t<L, R> >;
-    };
-
-    template<typename L, typename R>
-        requires Addable<get_t<L>, get_t<R> >
-    auto operator+(const L& lhs, const R& rhs) {
-        return std::common_type_t<L, R>(get(lhs) + get(rhs));
+    auto operator+(const L& lhs, const R& rhs) requires requires { get(lhs) + get(rhs); } {
+        return var<std::common_type_t<get_t<L>, get_t<R> > >(get(lhs) + get(rhs));
     }
 
     template<Var L, typename R>
-        requires Addable<get_t<L>, get_t<R> >
-    L& operator+=(L& lhs, const R& rhs) {
-        get(lhs) = get(lhs) + get(rhs);
+    L& operator+=(L& lhs, const R& rhs) requires requires { get(lhs) += get(rhs); } {
+        get(lhs) += get(rhs);
         return lhs;
     }
 
     template<typename L, typename R>
-    concept Subtractable = requires(L lhs, R rhs)
-    {
-        typename std::common_type_t<L, R>;
-        { lhs - rhs } -> std::convertible_to<std::common_type_t<L, R> >;
-    };
-
-    template<typename L, typename R>
-        requires Subtractable<get_t<L>, get_t<R> >
-    auto operator-(const L& lhs, const R& rhs) {
-        return std::common_type_t<L, R>(get(lhs) - get(rhs));
+    auto operator-(const L& lhs, const R& rhs) requires requires { get(lhs) - get(rhs); } {
+        return var<std::common_type_t<get_t<L>, get_t<R> > >(get(lhs) - get(rhs));
     }
 
     template<Var L, typename R>
-        requires Subtractable<get_t<L>, get_t<R> >
-    L& operator-=(L& lhs, const R& rhs) {
-        get(lhs) = get(lhs) - get(rhs);
+    L& operator-=(L& lhs, const R& rhs) requires requires { get(lhs) -= get(rhs); } {
+        get(lhs) -= get(rhs);
         return lhs;
     }
 
     template<typename L, typename R>
-    concept Multipliable = requires(L lhs, R rhs)
-    {
-        typename std::common_type_t<L, R>;
-        { lhs * rhs } -> std::convertible_to<std::common_type_t<L, R> >;
-    };
-
-    template<typename L, typename R>
-        requires Multipliable<get_t<L>, get_t<R> >
-    auto operator*(const L& lhs, const R& rhs) {
-        return std::common_type_t<L, R>(get(lhs) * get(rhs));
+    auto operator*(const L& lhs, const R& rhs) requires requires { get(lhs) * get(rhs); } {
+        return var<std::common_type_t<get_t<L>, get_t<R> > >(get(lhs) * get(rhs));
     }
 
     template<Var L, typename R>
-        requires Multipliable<get_t<L>, get_t<R> >
-    L& operator*=(L& lhs, const R& rhs) {
-        get(lhs) = get(lhs) * get(rhs);
+    L& operator*=(L& lhs, const R& rhs) requires requires { get(lhs) *= get(rhs); } {
+        get(lhs) *= get(rhs);
         return lhs;
     }
 
     template<typename L, typename R>
-    concept Dividable = requires(L lhs, R rhs)
-    {
-        typename std::common_type_t<L, R>;
-        { lhs / rhs } -> std::convertible_to<std::common_type_t<L, R> >;
-    };
-
-    template<typename L, typename R>
-        requires Dividable<get_t<L>, get_t<R> >
-    auto operator/(const L& lhs, const R& rhs) {
-        return std::common_type_t<L, R>(get(lhs) / get(rhs));
+    auto operator/(const L& lhs, const R& rhs) requires requires { get(lhs) / get(rhs); } {
+        return var<std::common_type_t<get_t<L>, get_t<R> > >(get(lhs) / get(rhs));
     }
 
     template<Var L, typename R>
-        requires Dividable<get_t<L>, get_t<R> >
-    L& operator/=(L& lhs, const R& rhs) {
-        get(lhs) = get(lhs) / get(rhs);
+    L& operator/=(L& lhs, const R& rhs) requires requires { get(lhs) /= get(rhs); } {
+        get(lhs) /= get(rhs);
         return lhs;
     }
 
     template<typename L, typename R>
-    concept Modable = requires(L lhs, R rhs)
-    {
-        typename std::common_type_t<L, R>;
-        { lhs % rhs } -> std::convertible_to<std::common_type_t<L, R> >;
-    };
-
-    template<typename L, typename R>
-        requires Modable<get_t<L>, get_t<R> >
-    auto operator%(const L& lhs, const R& rhs) {
-        return std::common_type_t<L, R>(get(lhs) % get(rhs));
+    auto operator%(const L& lhs, const R& rhs) requires requires { get(lhs) % get(rhs); } {
+        return var<std::common_type_t<get_t<L>, get_t<R> > >(get(lhs) % get(rhs));
     }
 
     template<Var L, typename R>
-        requires Modable<get_t<L>, get_t<R> >
-    L& operator%=(L& lhs, const R& rhs) {
-        get(lhs) = get(lhs) % get(rhs);
+    L& operator%=(L& lhs, const R& rhs) requires requires { get(lhs) %= get(rhs); } {
+        get(lhs) %= get(rhs);
         return lhs;
     }
 }
