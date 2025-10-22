@@ -1,6 +1,7 @@
 #pragma once
 
 #include "var/var.h"
+#include "print.h"
 
 #define varclass(name, body, ...) \
     struct Construct_##name __VA_OPT__( : Construct_##__VA_ARGS__ )  { \
