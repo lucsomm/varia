@@ -5,6 +5,10 @@
 #include "object_hierarchy.h"
 
 namespace varia::objects {
+    inline std::string_view to_string(const char* str) noexcept {
+        return std::string_view{str};
+    }
+
     inline const String& to_string(const String& str) noexcept {
         return str;
     }

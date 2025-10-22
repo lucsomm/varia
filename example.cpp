@@ -57,4 +57,5 @@ int main() {
     String conv2 = false + conv + bo + true;
 
     println(conv2);
+    println("Test {} {}", conv, 5);
 }

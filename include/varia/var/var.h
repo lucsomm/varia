@@ -140,7 +140,7 @@ namespace varia {
     }
 
     template<typename T>
-    concept StringLike = std::same_as<T, String> || std::constructible_from<std::string, T>;
+    concept StringLike = std::same_as<T, String> || std::constructible_from<objects::String, T>;
 
     template<typename T>
     concept StringCoercible = !StringLike<T> && std::constructible_from<String, T>;
