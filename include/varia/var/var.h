@@ -144,6 +144,10 @@ namespace varia {
         return String{get(lhs) + objects::to_string(get(rhs))};
     }
 
+    String operator+(const StringCoercible auto& lhs, const String& rhs) {
+        return String{objects::to_string(get(lhs)) + get(rhs)};
+    }
+
     String& operator+=(String& lhs, const StringCoercible auto& rhs) {
         lhs = lhs + rhs;
         return lhs;

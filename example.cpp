@@ -53,7 +53,7 @@ int main() {
     String conv = 3;
     conv += 5;
     var bo = false;
-    String conv2 = conv + bo + true;
+    String conv2 = false + conv + bo + true;
 
     std::cout << conv2->c_str() << '\n';
 }
