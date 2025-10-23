@@ -1,7 +1,9 @@
 #pragma once
 
 #include <string>
+#include <algorithm>
 
+#include "var.h"
 #include "objects/object_hierarchy.h"
 #include "objects/string.h"
 #include "storage/copied_storage.h"
@@ -39,7 +41,7 @@ namespace varia {
     }
 
     template<typename T>
-    using get_object_t = detail::GetObject<std::decay_t<T> >::type;
+    using get_object_type = detail::GetObject<std::decay_t<T> >::type;
 
     namespace detail {
         template<typename T>
@@ -59,7 +61,7 @@ namespace varia {
         };
 
         template<typename T>
-        using get_value_t = GetValue<T>::type;
+        using get_value_type = GetValue<T>::type;
     }
 
     namespace detail {
@@ -78,6 +80,9 @@ namespace varia {
     template<typename T>
     concept ArrayObject = detail::is_array_object_v<std::remove_cvref_t<T> >;
 
+    template<typename T1, typename T2>
+    concept SameObject = std::same_as<var<get_object_type<T1> >, var<get_object_type<T2> > >;
+
     template<typename T>
     concept Arithmetic = std::is_arithmetic_v<std::decay_t<T> > || (
                              Var<T> && std::is_arithmetic_v<typename std::decay_t<T>::object_type>);
@@ -88,9 +93,9 @@ namespace varia {
     using Num = var<objects::Num, CopiedStorage>;
     using String = var<objects::String, ImmutableSharedStorage>;
     template<typename T>
-    using Array = var<objects::Array<var<get_object_t<T> > > >;
+    using Array = var<objects::Array<var<get_object_type<T> > > >;
     template<typename K, typename V>
-    using Map = var<objects::Map<var<get_object_t<K> >, var<get_object_t<V> > > >;
+    using Map = var<objects::Map<var<get_object_type<K> >, var<get_object_type<V> > > >;
 
     template<typename T>
     decltype(auto) get(T&& t) noexcept {
@@ -107,10 +112,10 @@ namespace varia {
         return *t;
     }
 
-    template<typename T, template <typename > typename S> requires Storage<S<std::decay_t<T> > >
+    template<typename Obj, template <typename > typename S> requires Storage<S<std::decay_t<Obj> > >
     class var {
     public:
-        using object_type = std::decay_t<T>;
+        using object_type = std::decay_t<Obj>;
         using storage_policy = S<object_type>;
 
         ~var() = default;
@@ -131,25 +136,36 @@ namespace varia {
         var(const var<Derived>& from) : mStorage{from.get_storage()} {
         }
 
-        var(std::initializer_list<detail::get_value_t<object_type> > li) requires ArrayObject<object_type> : mStorage{
-            storage_policy::make(li)
-        } {
+        var(std::initializer_list<detail::get_value_type<object_type> > li)
+            requires ArrayObject<object_type> : mStorage(storage_policy::make(li)) {
         }
 
-        var(const Arithmetic auto& from) requires std::same_as<object_type, objects::String> : mStorage{
-            storage_policy::make(objects::to_string(get(from)))
+        // std::initializer_list<T> to objects::Array<var<T>>
+        var(std::initializer_list<get_object_type<detail::get_value_type<object_type> > > li)
+            requires (ArrayObject<object_type> && Var<detail::get_value_type<object_type> >) : mStorage{
+            storage_policy::make(li.size())
         } {
+            std::transform(li.begin(), li.end(), object().begin(), [](const auto& elem) {
+                return detail::get_value_type<object_type>{elem};
+            });
+        }
+
+        var(const Arithmetic auto& from) requires std::same_as<object_type, objects::String>
+            : mStorage{storage_policy::make(objects::to_string(get(from)))} {
         }
 
         [[nodiscard]] const storage_policy& get_storage() const noexcept {
             return mStorage;
         }
 
-        operator const object_type&() const noexcept {
+        operator const object_type&()
+        const
+            noexcept {
             return *mStorage.get();
         }
 
-        operator object_type&() noexcept {
+        operator object_type&()
+            noexcept {
             return *mStorage.get();
         }
 
@@ -170,7 +186,15 @@ namespace varia {
         }
 
     private:
-        storage_policy mStorage{};
+        const object_type& object() const {
+            return *mStorage.get();
+        }
+
+        object_type& object() {
+            return *mStorage.get();
+        }
+
+        storage_policy mStorage{storage_policy::make()};
     };
 
     var(bool) -> var<objects::Bool, CopiedStorage>;
@@ -186,7 +210,7 @@ namespace varia {
     var(std::string_view) -> var<objects::String, ImmutableSharedStorage>;
 
     template<typename T>
-    var(std::initializer_list<T>) -> var<objects::Array<T> >;
+    var(std::initializer_list<T>) -> var<objects::Array<var<get_object_type<T> > > >;
 
     std::ostream& operator<<(std::ostream& os, const Var auto& v) {
         os << objects::to_string(get(v));
@@ -214,7 +238,7 @@ namespace varia {
 
     template<typename L, typename R>
     auto operator+(const L& lhs, const R& rhs) requires requires { get(lhs) + get(rhs); } {
-        return var<std::common_type_t<get_object_t<L>, get_object_t<R> > >(get(lhs) + get(rhs));
+        return var<std::common_type_t<get_object_type<L>, get_object_type<R> > >(get(lhs) + get(rhs));
     }
 
     template<Var L, typename R>
@@ -225,7 +249,7 @@ namespace varia {
 
     template<typename L, typename R>
     auto operator-(const L& lhs, const R& rhs) requires requires { get(lhs) - get(rhs); } {
-        return var<std::common_type_t<get_object_t<L>, get_object_t<R> > >(get(lhs) - get(rhs));
+        return var<std::common_type_t<get_object_type<L>, get_object_type<R> > >(get(lhs) - get(rhs));
     }
 
     template<Var L, typename R>
@@ -236,7 +260,7 @@ namespace varia {
 
     template<typename L, typename R>
     auto operator*(const L& lhs, const R& rhs) requires requires { get(lhs) * get(rhs); } {
-        return var<std::common_type_t<get_object_t<L>, get_object_t<R> > >(get(lhs) * get(rhs));
+        return var<std::common_type_t<get_object_type<L>, get_object_type<R> > >(get(lhs) * get(rhs));
     }
 
     template<Var L, typename R>
@@ -247,7 +271,7 @@ namespace varia {
 
     template<typename L, typename R>
     auto operator/(const L& lhs, const R& rhs) requires requires { get(lhs) / get(rhs); } {
-        return var<std::common_type_t<get_object_t<L>, get_object_t<R> > >(get(lhs) / get(rhs));
+        return var<std::common_type_t<get_object_type<L>, get_object_type<R> > >(get(lhs) / get(rhs));
     }
 
     template<Var L, typename R>
@@ -258,7 +282,7 @@ namespace varia {
 
     template<typename L, typename R>
     auto operator%(const L& lhs, const R& rhs) requires requires { get(lhs) % get(rhs); } {
-        return var<std::common_type_t<get_object_t<L>, get_object_t<R> > >(get(lhs) % get(rhs));
+        return var<std::common_type_t<get_object_type<L>, get_object_type<R> > >(get(lhs) % get(rhs));
     }
 
     template<Var L, typename R>
