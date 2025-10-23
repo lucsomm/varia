@@ -62,13 +62,29 @@ namespace varia {
     using Num = var<objects::Num, CopiedStorage>;
     using String = var<objects::String, ImmutableSharedStorage>;
     template<typename T>
-    using Array = var<objects::Array<T> >;
+    using Array = var<objects::Array<var<get_t<T> > > >;
     template<typename K, typename V>
-    using Map = var<objects::Map<K, V> >;
+    using Map = var<objects::Map<var<get_t<K> >, var<get_t<V> > > >;
 
     template<typename T>
     concept Arithmetic = std::is_arithmetic_v<std::decay_t<T> > || (
                              Var<T> && std::is_arithmetic_v<typename std::decay_t<T>::object_type>);
+
+    namespace detail {
+        template<typename>
+        struct is_std_vector : std::false_type {
+        };
+
+        template<typename T, typename Alloc>
+        struct is_std_vector<objects::Array<T, Alloc> > : std::true_type {
+        };
+
+        template<typename T>
+        inline constexpr bool is_std_vector_v = is_std_vector<T>::value;
+    }
+
+    template<typename T>
+    concept ArrayObject = detail::is_std_vector_v<std::remove_cvref_t<T> >;
 
     template<typename T, template <typename > typename S> requires Storage<S<std::decay_t<T> > >
     class var {
@@ -95,6 +111,12 @@ namespace varia {
 
         template<std::derived_from<object_type> Derived>
         var(const var<Derived>& from) : mStorage{from.get_storage()} {
+        }
+
+        template<typename U>
+        var(std::initializer_list<U> li) requires ArrayObject<object_type> : mStorage{
+            storage_policy::make(std::forward<std::initializer_list<U> >(li))
+        } {
         }
 
         var(const Arithmetic auto& from) requires std::same_as<object_type, objects::String> : mStorage{
@@ -145,6 +167,9 @@ namespace varia {
     var(const char*) -> var<objects::String, ImmutableSharedStorage>;
 
     var(std::string_view) -> var<objects::String, ImmutableSharedStorage>;
+
+    template<typename T>
+    var(std::initializer_list<T>) -> var<objects::Array<T> >;
 
     std::ostream& operator<<(std::ostream& os, const Var auto& v) {
         os << objects::to_string(get(v));

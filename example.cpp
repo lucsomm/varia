@@ -27,7 +27,7 @@ int main() {
     i *= j - 2 % i;
     println(i);
 
-    Array<Int> arr = (5, 5, 4, 4);
+    var arr = {5, 5, 4, 4};
     arr->resize(i);
     println("Array size {}", arr->size());
 

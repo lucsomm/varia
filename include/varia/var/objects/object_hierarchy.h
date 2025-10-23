@@ -19,8 +19,8 @@ namespace varia::objects {
     using Float = double;
     using Num = double;
     using String = std::string;
-    template<typename T>
-    using Array = std::vector<T>;
+    template<typename T, typename Alloc = std::allocator<T> >
+    using Array = std::vector<T, Alloc>;
     template<typename K, typename V>
     using Map = std::unordered_map<K, V>;
 }
