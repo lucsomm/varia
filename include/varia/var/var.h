@@ -72,19 +72,19 @@ namespace varia {
 
     namespace detail {
         template<typename>
-        struct is_std_vector : std::false_type {
+        struct is_array_object : std::false_type {
         };
 
         template<typename T, typename Alloc>
-        struct is_std_vector<objects::Array<T, Alloc> > : std::true_type {
+        struct is_array_object<objects::Array<T, Alloc> > : std::true_type {
         };
 
         template<typename T>
-        inline constexpr bool is_std_vector_v = is_std_vector<T>::value;
+        inline constexpr bool is_array_object_v = is_array_object<T>::value;
     }
 
     template<typename T>
-    concept ArrayObject = detail::is_std_vector_v<std::remove_cvref_t<T> >;
+    concept ArrayObject = detail::is_array_object_v<std::remove_cvref_t<T> >;
 
     template<typename T, template <typename > typename S> requires Storage<S<std::decay_t<T> > >
     class var {
@@ -102,9 +102,6 @@ namespace varia {
 
         var& operator=(var&&) = default;
 
-        var(const object_type& vt) : mStorage{storage_policy::make(vt)} {
-        }
-
         template<typename... Args>
         var(Args... args) : mStorage{storage_policy::make(std::forward<Args>(args)...)} {
         }
@@ -115,7 +112,7 @@ namespace varia {
 
         template<typename U>
         var(std::initializer_list<U> li) requires ArrayObject<object_type> : mStorage{
-            storage_policy::make(std::forward<std::initializer_list<U> >(li))
+            storage_policy::make(li)
         } {
         }
 
