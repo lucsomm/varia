@@ -28,18 +28,18 @@ namespace varia {
 
     namespace detail {
         template<typename T>
-        struct Get {
+        struct GetObject {
             using type = T;
         };
 
         template<Var T>
-        struct Get<T> {
+        struct GetObject<T> {
             using type = T::object_type;
         };
     }
 
     template<typename T>
-    using get_t = detail::Get<std::decay_t<T> >::type;
+    using get_object_t = detail::GetObject<std::decay_t<T> >::type;
 
     template<typename T>
     decltype(auto) get(T&& t) noexcept {
@@ -62,9 +62,9 @@ namespace varia {
     using Num = var<objects::Num, CopiedStorage>;
     using String = var<objects::String, ImmutableSharedStorage>;
     template<typename T>
-    using Array = var<objects::Array<var<get_t<T> > > >;
+    using Array = var<objects::Array<var<get_object_t<T> > > >;
     template<typename K, typename V>
-    using Map = var<objects::Map<var<get_t<K> >, var<get_t<V> > > >;
+    using Map = var<objects::Map<var<get_object_t<K> >, var<get_object_t<V> > > >;
 
     template<typename T>
     concept Arithmetic = std::is_arithmetic_v<std::decay_t<T> > || (
@@ -194,7 +194,7 @@ namespace varia {
 
     template<typename L, typename R>
     auto operator+(const L& lhs, const R& rhs) requires requires { get(lhs) + get(rhs); } {
-        return var<std::common_type_t<get_t<L>, get_t<R> > >(get(lhs) + get(rhs));
+        return var<std::common_type_t<get_object_t<L>, get_object_t<R> > >(get(lhs) + get(rhs));
     }
 
     template<Var L, typename R>
@@ -205,7 +205,7 @@ namespace varia {
 
     template<typename L, typename R>
     auto operator-(const L& lhs, const R& rhs) requires requires { get(lhs) - get(rhs); } {
-        return var<std::common_type_t<get_t<L>, get_t<R> > >(get(lhs) - get(rhs));
+        return var<std::common_type_t<get_object_t<L>, get_object_t<R> > >(get(lhs) - get(rhs));
     }
 
     template<Var L, typename R>
@@ -216,7 +216,7 @@ namespace varia {
 
     template<typename L, typename R>
     auto operator*(const L& lhs, const R& rhs) requires requires { get(lhs) * get(rhs); } {
-        return var<std::common_type_t<get_t<L>, get_t<R> > >(get(lhs) * get(rhs));
+        return var<std::common_type_t<get_object_t<L>, get_object_t<R> > >(get(lhs) * get(rhs));
     }
 
     template<Var L, typename R>
@@ -227,7 +227,7 @@ namespace varia {
 
     template<typename L, typename R>
     auto operator/(const L& lhs, const R& rhs) requires requires { get(lhs) / get(rhs); } {
-        return var<std::common_type_t<get_t<L>, get_t<R> > >(get(lhs) / get(rhs));
+        return var<std::common_type_t<get_object_t<L>, get_object_t<R> > >(get(lhs) / get(rhs));
     }
 
     template<Var L, typename R>
@@ -238,7 +238,7 @@ namespace varia {
 
     template<typename L, typename R>
     auto operator%(const L& lhs, const R& rhs) requires requires { get(lhs) % get(rhs); } {
-        return var<std::common_type_t<get_t<L>, get_t<R> > >(get(lhs) % get(rhs));
+        return var<std::common_type_t<get_object_t<L>, get_object_t<R> > >(get(lhs) % get(rhs));
     }
 
     template<Var L, typename R>
