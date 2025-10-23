@@ -41,34 +41,26 @@ namespace varia {
     template<typename T>
     using get_object_t = detail::GetObject<std::decay_t<T> >::type;
 
-    template<typename T>
-    decltype(auto) get(T&& t) noexcept {
-        return std::forward<T>(t);
+    namespace detail {
+        template<typename T>
+        concept HasValueType = requires(T)
+        {
+            typename T::value_type;
+        };
+
+        template<typename T>
+        struct GetValue {
+            using type = T;
+        };
+
+        template<HasValueType T>
+        struct GetValue<T> {
+            using type = T::value_type;
+        };
+
+        template<typename T>
+        using get_value_t = GetValue<T>::type;
     }
-
-    template<Var T>
-    const T::object_type& get(const T& t) noexcept {
-        return *t;
-    }
-
-    template<Var T>
-    T::object_type& get(T& t) noexcept {
-        return *t;
-    }
-
-    using Bool = var<objects::Bool, CopiedStorage>;
-    using Int = var<objects::Int, CopiedStorage>;
-    using Float = var<objects::Float, CopiedStorage>;
-    using Num = var<objects::Num, CopiedStorage>;
-    using String = var<objects::String, ImmutableSharedStorage>;
-    template<typename T>
-    using Array = var<objects::Array<var<get_object_t<T> > > >;
-    template<typename K, typename V>
-    using Map = var<objects::Map<var<get_object_t<K> >, var<get_object_t<V> > > >;
-
-    template<typename T>
-    concept Arithmetic = std::is_arithmetic_v<std::decay_t<T> > || (
-                             Var<T> && std::is_arithmetic_v<typename std::decay_t<T>::object_type>);
 
     namespace detail {
         template<typename>
@@ -85,6 +77,35 @@ namespace varia {
 
     template<typename T>
     concept ArrayObject = detail::is_array_object_v<std::remove_cvref_t<T> >;
+
+    template<typename T>
+    concept Arithmetic = std::is_arithmetic_v<std::decay_t<T> > || (
+                             Var<T> && std::is_arithmetic_v<typename std::decay_t<T>::object_type>);
+
+    using Bool = var<objects::Bool, CopiedStorage>;
+    using Int = var<objects::Int, CopiedStorage>;
+    using Float = var<objects::Float, CopiedStorage>;
+    using Num = var<objects::Num, CopiedStorage>;
+    using String = var<objects::String, ImmutableSharedStorage>;
+    template<typename T>
+    using Array = var<objects::Array<var<get_object_t<T> > > >;
+    template<typename K, typename V>
+    using Map = var<objects::Map<var<get_object_t<K> >, var<get_object_t<V> > > >;
+
+    template<typename T>
+    decltype(auto) get(T&& t) noexcept {
+        return std::forward<T>(t);
+    }
+
+    template<Var T>
+    const T::object_type& get(const T& t) noexcept {
+        return *t;
+    }
+
+    template<Var T>
+    T::object_type& get(T& t) noexcept {
+        return *t;
+    }
 
     template<typename T, template <typename > typename S> requires Storage<S<std::decay_t<T> > >
     class var {
@@ -110,8 +131,7 @@ namespace varia {
         var(const var<Derived>& from) : mStorage{from.get_storage()} {
         }
 
-        template<typename U>
-        var(std::initializer_list<U> li) requires ArrayObject<object_type> : mStorage{
+        var(std::initializer_list<detail::get_value_t<object_type> > li) requires ArrayObject<object_type> : mStorage{
             storage_policy::make(li)
         } {
         }
