@@ -26,6 +26,8 @@ int main() {
     var j = i + 5;
     i *= j - 2 % i;
     println(i);
+    -i;
+    +j;
 
     var arr = {5, 5, 4, 4};
     println("{} {}", arr->at(0), arr->at(2));
