@@ -5,12 +5,12 @@
 
 namespace varia::objects {
     template<typename T>
-    concept Formattable = requires(T t)
+    concept Formatable = requires(T t)
     {
         { std::format("{}", t) };
     };
 
-    String to_string(const Formattable auto& value) {
+    String to_string(const Formatable auto& value) {
         return String{std::format("{}", value)};
     }
 }

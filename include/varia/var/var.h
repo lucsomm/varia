@@ -5,14 +5,14 @@
 
 #include "var.h"
 #include "objects/object_hierarchy.h"
-#include "objects/string.h"
+#include "objects/string_object.h"
 #include "storage/copied_storage.h"
 #include "storage/immutable_shared_storage.h"
 #include "storage/shared_storage.h"
 #include "storage/storage.h"
 
 namespace varia {
-    template<typename T, template <typename > typename S = SharedStorage> requires Storage<S<std::decay_t<T> > >
+    template<typename Obj, template <typename > typename S = SharedStorage> requires Storage<S<std::decay_t<Obj> > >
     class var;
 
     namespace detail {
@@ -301,3 +301,12 @@ namespace varia {
         return T{-get(v)};
     }
 }
+
+template<varia::Var T>
+    requires varia::objects::Formatable<varia::get_object_type<T> >
+struct std::formatter<T> : std::formatter<std::string> {
+    template<typename FormatContext>
+    auto format(const T& v, FormatContext& ctx) const {
+        return std::formatter<std::string>::format(varia::objects::to_string(varia::get(v)), ctx);
+    }
+};
