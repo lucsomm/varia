@@ -237,7 +237,7 @@ namespace varia {
     }
 
     template<typename L, typename R>
-    auto operator+(const L& lhs, const R& rhs) requires requires { get(lhs) + get(rhs); } {
+    auto operator+(const L& lhs, const R& rhs) requires ((Var<L> || Var<R>) && requires { get(lhs) + get(rhs); }) {
         return var<std::common_type_t<get_object_type<L>, get_object_type<R> > >(get(lhs) + get(rhs));
     }
 
@@ -248,7 +248,7 @@ namespace varia {
     }
 
     template<typename L, typename R>
-    auto operator-(const L& lhs, const R& rhs) requires requires { get(lhs) - get(rhs); } {
+    auto operator-(const L& lhs, const R& rhs) requires ((Var<L> || Var<R>) && requires { get(lhs) - get(rhs); }) {
         return var<std::common_type_t<get_object_type<L>, get_object_type<R> > >(get(lhs) - get(rhs));
     }
 
@@ -259,7 +259,7 @@ namespace varia {
     }
 
     template<typename L, typename R>
-    auto operator*(const L& lhs, const R& rhs) requires requires { get(lhs) * get(rhs); } {
+    auto operator*(const L& lhs, const R& rhs) requires ((Var<L> || Var<R>) && requires { get(lhs) * get(rhs); }) {
         return var<std::common_type_t<get_object_type<L>, get_object_type<R> > >(get(lhs) * get(rhs));
     }
 
@@ -270,7 +270,7 @@ namespace varia {
     }
 
     template<typename L, typename R>
-    auto operator/(const L& lhs, const R& rhs) requires requires { get(lhs) / get(rhs); } {
+    auto operator/(const L& lhs, const R& rhs) requires ((Var<L> || Var<R>) && requires { get(lhs) / get(rhs); }) {
         return var<std::common_type_t<get_object_type<L>, get_object_type<R> > >(get(lhs) / get(rhs));
     }
 
