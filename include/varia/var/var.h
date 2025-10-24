@@ -3,7 +3,6 @@
 #include <string>
 #include <algorithm>
 
-#include "var.h"
 #include "objects/object_hierarchy.h"
 #include "objects/string_object.h"
 #include "storage/copied_storage.h"
@@ -304,9 +303,9 @@ namespace varia {
 
 template<varia::Var T>
     requires varia::objects::Formatable<varia::get_object_type<T> >
-struct std::formatter<T> : std::formatter<std::string> {
+struct VARIA_FORMAT_NS::formatter<T> : VARIA_FORMAT_NS::formatter<std::string_view> {
     template<typename FormatContext>
     auto format(const T& v, FormatContext& ctx) const {
-        return std::formatter<std::string>::format(varia::objects::to_string(varia::get(v)), ctx);
+        return VARIA_FORMAT_NS::formatter<std::string_view>::format(varia::objects::to_string(varia::get(v)), ctx);
     }
 };

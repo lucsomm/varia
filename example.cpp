@@ -30,7 +30,7 @@ int main() {
     +j;
 
     var arr = {5, 5, 4, 4};
-    println("{} {}", arr->at(0), arr->at(2));
+    println("{}", arr);
     arr->resize(i);
     println("Array size {}", arr->size());
 
@@ -64,5 +64,5 @@ int main() {
 
     println(conv2);
     println("Test {} {}", conv, Num(5));
-    std::format("{}", Num(5));
+    // std::format("{}", Num(5));
 }

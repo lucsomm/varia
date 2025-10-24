@@ -13,4 +13,5 @@ else ()
     target_compile_options(varia PRIVATE -Wall -Wextra -Wpedantic)
 endif ()
 
-
+find_package(fmt CONFIG REQUIRED)
+target_link_libraries(varia PRIVATE fmt::fmt)
