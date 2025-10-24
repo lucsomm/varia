@@ -30,7 +30,9 @@ int main() {
     +j;
 
     var arr = {5, 5, 4, 4};
+    var arr2 = {"A", "B", "C"};
     println("{}", arr);
+    println("{}", arr2);
     arr->resize(i);
     println("Array size {}", arr->size());
 

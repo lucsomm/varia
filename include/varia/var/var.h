@@ -222,11 +222,15 @@ namespace varia {
     template<typename T>
     concept StringCoercible = !StringLike<T> && std::constructible_from<String, T>;
 
-    String operator+(const String& lhs, const StringCoercible auto& rhs) {
+    template<typename T>
+    String operator+(const T& lhs, const StringCoercible auto& rhs)
+        requires (Var<T> && std::same_as<get_object_type<T>, objects::String>) {
         return String{get(lhs) + objects::to_string(get(rhs))};
     }
 
-    String operator+(const StringCoercible auto& lhs, const String& rhs) {
+    template<typename T>
+    String operator+(const StringCoercible auto& lhs, const T& rhs)
+        requires (Var<T> && std::same_as<get_object_type<T>, objects::String>) {
         return String{objects::to_string(get(lhs)) + get(rhs)};
     }
 
