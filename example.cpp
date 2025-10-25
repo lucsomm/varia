@@ -24,7 +24,8 @@ int main() {
     println("Hello, World!");
     Int i = 5;
     var j = i + 5;
-    i *= j - 2 % i;
+    var k = 2;
+    i *= j - Int(k) % i;
     println(i);
     -i;
     +j;

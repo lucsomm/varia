@@ -83,8 +83,7 @@ namespace varia {
     concept SameObject = std::same_as<var<get_object_type<T1> >, var<get_object_type<T2> > >;
 
     template<typename T>
-    concept Arithmetic = std::is_arithmetic_v<std::decay_t<T> > || (
-                             Var<T> && std::is_arithmetic_v<typename std::decay_t<T>::object_type>);
+    concept Arithmetic = std::is_arithmetic_v<get_object_type<T> >;
 
     using Bool = var<objects::Bool, CopiedStorage>;
     using Int = var<objects::Int, CopiedStorage>;
@@ -198,10 +197,7 @@ namespace varia {
 
     var(bool) -> var<objects::Bool, CopiedStorage>;
 
-    template<std::integral T>
-    var(T) -> var<objects::Num, CopiedStorage>;
-
-    template<std::floating_point T>
+    template<Arithmetic T>
     var(T) -> var<objects::Num, CopiedStorage>;
 
     var(const char*) -> var<objects::String, ImmutableSharedStorage>;
