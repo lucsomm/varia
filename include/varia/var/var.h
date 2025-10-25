@@ -76,14 +76,10 @@ namespace varia {
         inline constexpr bool is_array_object_v = is_array_object<T>::value;
     }
 
-    template<typename T>
-    concept ArrayObject = detail::is_array_object_v<std::remove_cvref_t<T> >;
-
-    template<typename T1, typename T2>
-    concept SameObject = std::same_as<var<get_object_type<T1> >, var<get_object_type<T2> > >;
-
-    template<typename T>
-    concept Arithmetic = std::is_arithmetic_v<get_object_type<T> >;
+    namespace concepts {
+        template<typename T>
+        concept String = Var<T> && std::same_as<get_object_type<T>, objects::String>;
+    }
 
     using Bool = var<objects::Bool, CopiedStorage>;
     using Int = var<objects::Int, CopiedStorage>;
@@ -135,12 +131,12 @@ namespace varia {
         }
 
         var(std::initializer_list<detail::get_value_type<object_type> > li)
-            requires ArrayObject<object_type> : mStorage(storage_policy::make(li)) {
+            requires objects::concepts::Array<object_type> : mStorage(storage_policy::make(li)) {
         }
 
         // std::initializer_list<T> to objects::Array<var<T>>
         var(std::initializer_list<get_object_type<detail::get_value_type<object_type> > > li)
-            requires (ArrayObject<object_type> && Var<detail::get_value_type<object_type> >) : mStorage{
+            requires (objects::concepts::Array<object_type> && Var<detail::get_value_type<object_type> >) : mStorage{
             storage_policy::make(li.size())
         } {
             std::transform(li.begin(), li.end(), object().begin(), [](const auto& elem) {
@@ -148,7 +144,7 @@ namespace varia {
             });
         }
 
-        var(const Arithmetic auto& from) requires std::same_as<object_type, objects::String>
+        var(const objects::concepts::Arithmetic auto& from) requires std::same_as<object_type, objects::String>
             : mStorage{storage_policy::make(objects::to_string(get(from)))} {
         }
 
@@ -197,7 +193,7 @@ namespace varia {
 
     var(bool) -> var<objects::Bool, CopiedStorage>;
 
-    template<Arithmetic T>
+    template<objects::concepts::Arithmetic T>
     var(T) -> var<objects::Num, CopiedStorage>;
 
     var(const char*) -> var<objects::String, ImmutableSharedStorage>;
@@ -218,22 +214,33 @@ namespace varia {
     template<typename T>
     concept StringCoercible = !StringLike<T> && std::constructible_from<String, T>;
 
-    template<typename T>
-    String operator+(const T& lhs, const StringCoercible auto& rhs)
-        requires (Var<T> && std::same_as<get_object_type<T>, objects::String>) {
-        return String{get(lhs) + objects::to_string(get(rhs))};
+    template<concepts::String T>
+    T operator+(const T& lhs, const StringCoercible auto& rhs) {
+        return T{get(lhs) + objects::to_string(get(rhs))};
     }
 
-    template<typename T>
-    String operator+(const StringCoercible auto& lhs, const T& rhs)
-        requires (Var<T> && std::same_as<get_object_type<T>, objects::String>) {
-        return String{objects::to_string(get(lhs)) + get(rhs)};
+    template<concepts::String T>
+    T operator+(const StringCoercible auto& lhs, const T& rhs) {
+        return T{objects::to_string(get(lhs)) + get(rhs)};
     }
 
-    String& operator+=(String& lhs, const StringCoercible auto& rhs) {
-        lhs = lhs + rhs;
+    template<concepts::String T>
+    T& operator+=(T& lhs, const StringCoercible auto& rhs) {
+        get(lhs) += objects::to_string(get(rhs));
         return lhs;
     }
+
+    template<concepts::String T>
+    T& operator+(const T& lhs, const char rhs) {
+        return T{get(lhs) + objects::to_string(rhs)};
+    }
+
+    template<concepts::String T>
+    T& operator+=(T& lhs, const char rhs) {
+        get(lhs) += objects::to_string(get(rhs));
+        return lhs;
+    }
+
 
     template<typename L, typename R>
     Var auto operator+(const L& lhs, const R& rhs) requires ((Var<L> || Var<R>) && requires { get(lhs) + get(rhs); }) {
