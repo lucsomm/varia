@@ -61,11 +61,10 @@ int main() {
     println(y);
 
     String conv = 3;
-    // conv += 5;
+    conv += j;
     var bo = false;
     String conv2 = false + conv + bo + true;
 
     println(conv2);
     println("Test {} {}", conv, Num(5));
-    // std::format("{}", Num(5));
 }
