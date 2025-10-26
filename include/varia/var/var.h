@@ -37,7 +37,7 @@ namespace varia {
 
         template<concepts::Var T>
         struct GetObject<T> {
-            using type = T::object_type;
+            using type = typename T::object_type;
         };
     }
 
@@ -58,7 +58,7 @@ namespace varia {
 
         template<HasValueType T>
         struct GetValue<T> {
-            using type = T::value_type;
+            using type = typename T::value_type;
         };
 
         template<typename T>
@@ -86,11 +86,11 @@ namespace varia {
 
         template<concepts::Var T>
         struct GetStorage<T> {
-            using policy = T::storage_policy;
+            using policy = typename T::storage_policy;
         };
     }
 
-    template<typename T, typename CastToObj = get_object_type<T> >
+    template<typename T>
     using get_storage_policy = detail::GetStorage<std::decay_t<T> >::policy;
 
     namespace detail {
@@ -176,8 +176,6 @@ namespace varia {
     class var {
     public:
         using object_type = std::decay_t<Obj>;
-        template<typename ToObj>
-        using object_cast_storage_policy = S<std::decay_t<ToObj> >;
         using storage_policy = S<object_type>;
 
         ~var() = default;
@@ -194,8 +192,8 @@ namespace varia {
         var(Args... args) : mStorage{storage_policy::make(std::forward<Args>(args)...)} {
         }
 
-        template<std::derived_from<object_type> Derived>
-        var(const var<Derived>& from) : mStorage{from.get_storage()} {
+        template<concepts::Var T>
+        var(const T& from) requires std::derived_from<get_object_type<T>, object_type> : mStorage{from.get_storage()} {
         }
 
         var(std::initializer_list<detail::get_value_type<object_type> > li)
