@@ -23,7 +23,7 @@ varclass(B,
 int main() {
     println("Hello, World!");
     Int i = 5;
-    var j = i + 5;
+    var j = 1 + i + 5;
     var k = 2;
     i *= j - Int(k) % i;
     println(i);
@@ -67,4 +67,9 @@ int main() {
 
     println(conv2);
     println("Test {} {}", conv, Num(5));
+
+    var<double, SharedStorage> v1 = 7;
+    var<double, CopiedStorage> v2 = v1;
+    var v3 = v1 + v2;
+    println(concepts::Shared<decltype(v3)>);
 }
