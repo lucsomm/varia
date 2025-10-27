@@ -32,8 +32,10 @@ int main() {
 
     var arr = {5, 5, 4, 4};
     var arr2 = {"A", "B", "C"};
-    println("{}", arr);
-    println("{}", arr2);
+    var arr3 = {false, true, false};
+    println(arr);
+    println(arr2);
+    println(arr3);
     println(arr2[2]);
     arr->resize(i);
     println("Array size {}", arr->size());

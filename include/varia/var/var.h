@@ -371,9 +371,9 @@ namespace varia {
 
 template<varia::concepts::Var T>
     requires varia::objects::Formatable<varia::get_object_type<T> >
-struct VARIA_FORMAT_NS::formatter<T> : VARIA_FORMAT_NS::formatter<std::string_view> {
+struct VARIA_FORMAT_NS::formatter<T> : VARIA_FORMAT_NS::formatter<varia::get_object_type<T> > {
     template<typename FormatContext>
     auto format(const T& v, FormatContext& ctx) const {
-        return VARIA_FORMAT_NS::formatter<std::string_view>::format(varia::objects::to_string(varia::get(v)), ctx);
+        return VARIA_FORMAT_NS::formatter<varia::get_object_type<T> >::format(varia::get(v), ctx);
     }
 };
