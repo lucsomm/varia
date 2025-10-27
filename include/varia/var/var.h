@@ -62,7 +62,7 @@ namespace varia {
         };
 
         template<typename T>
-        using get_value_type = GetValue<T>::type;
+        using get_value_type = GetValue<get_object_type<T> >::type;
     }
 
     namespace detail {
@@ -147,9 +147,20 @@ namespace varia {
     using String = var<objects::String, ImmutableSharedStorage>;
 
     template<typename T>
-    using Array = var<objects::Array<var<get_object_type<T> > > >;
-    template<typename K, typename V>
-    using Map = var<objects::Map<var<get_object_type<K> >, var<get_object_type<V> > > >;
+    using Array = var<objects::Array<
+        std::conditional_t<concepts::Var<T>,
+            T,
+            std::conditional_t<objects::concepts::String<T>,
+                String,
+                std::conditional_t<objects::concepts::Primitive<T>,
+                    var<T, CopiedStorage>,
+                    var<T>
+                >
+            >
+        >
+    > >;
+    /*template<typename K, typename V>
+    using Map = var<objects::Map<var<get_object_type<K> >, var<get_object_type<V> > > >;*/
 
     namespace concepts {
         template<typename T>
@@ -176,6 +187,10 @@ namespace varia {
     public:
         using object_type = std::decay_t<Obj>;
         using storage_policy = S<object_type>;
+
+        static_assert(!(objects::concepts::Primitive<object_type> &&
+                        std::same_as<storage_policy, SharedStorage<object_type> >),
+                      "varia static assert: primitive objects should not be stored with SharedStorage");
 
         ~var() = default;
 
@@ -275,8 +290,23 @@ namespace varia {
 
     var(std::string_view) -> var<objects::String, ImmutableSharedStorage>;
 
+    template<objects::concepts::Pointer T>
+    var(T) -> var<T, CopiedStorage>;
+
+    template<objects::concepts::Arithmetic T>
+    var(std::initializer_list<T>) -> var<objects::Array<var<T, CopiedStorage> > >;
+
+    template<objects::concepts::StringLike T>
+    var(std::initializer_list<T>) -> var<objects::Array<var<T, ImmutableSharedStorage> > >;
+
+    template<objects::concepts::Pointer T> requires (!std::same_as<T, const char*>)
+    var(std::initializer_list<T>) -> var<objects::Array<var<T, CopiedStorage> > >;
+
+    template<concepts::Var T>
+    var(std::initializer_list<T>) -> var<objects::Array<T> >;
+
     template<typename T>
-    var(std::initializer_list<T>) -> var<objects::Array<var<get_object_type<T> > > >;
+    var(std::initializer_list<T>) -> var<objects::Array<var<std::decay_t<T> > > >;
 
     std::ostream& operator<<(std::ostream& os, const concepts::Var auto& v) {
         os << objects::to_string(get(v));

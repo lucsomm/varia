@@ -41,7 +41,19 @@ namespace varia::objects {
         concept Arithmetic = std::is_arithmetic_v<std::remove_cvref_t<T> >;
 
         template<typename T>
+        concept String = std::same_as<std::remove_cvref_t<T>, objects::String>;
+
+        template<typename T>
+        concept StringLike = std::constructible_from<objects::String, std::remove_cvref_t<T> >;
+
+        template<typename T>
+        concept Pointer = std::is_pointer_v<std::decay_t<T> >;
+
+        template<typename T>
         concept Array = detail::is_array_object_v<std::remove_cvref_t<T> >;
+
+        template<typename T>
+        concept Primitive = Arithmetic<T> || StringLike<T> || Pointer<T>;
     }
 }
 

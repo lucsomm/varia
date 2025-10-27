@@ -71,7 +71,7 @@ int main() {
     println(conv2);
     println("Test {} {}", conv, Float(5.56));
 
-    var<double, SharedStorage> v1 = 7;
+    var<double, ImmutableSharedStorage> v1 = 7;
     var<double, CopiedStorage> v2 = v1;
     var v3 = v1 + v2;
     println(concepts::Shared<decltype(v3)>);
@@ -80,4 +80,8 @@ int main() {
     constexpr var ce_test2 = 10;
     constexpr var ce_res = ce_test / ce_test2;
     println(ce_res);
+
+    println(concepts::Copied<detail::get_value_type<Array<int> > >);
+    println(concepts::ImmutableShared<detail::get_value_type<Array<std::string> > >);
+    println(concepts::Shared<detail::get_value_type<Array<A> > >);
 }
