@@ -3,19 +3,19 @@
 
 varclass(A,
          explicit Construct_A(int a) {
-         a_ = a;
+         this->a = a;
          }
 
          virtual void greet() {
-         std::cout << "Hello, I am A. " << '\n';
+         println("Hello, I am A.");
          }
 
-         int a_{8};
+         Int a = 8;
 )
 
 varclass(B,
          void greet() override {
-         std::cout << "Hello, I am B. " << '\n';
+         println("Hello, I am B.");
          }
 
          , A)
@@ -66,7 +66,7 @@ int main() {
     String conv = 3;
     conv += j;
     var bo = false;
-    String conv2 = false + conv + bo + true;
+    var conv2 = false + conv + bo + true;
 
     println(conv2);
     println("Test {} {}", conv, Float(5.56));
