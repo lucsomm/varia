@@ -7,20 +7,20 @@ public:
     using object_type = T;
 
     template<typename... Args>
-    [[nodiscard]] static CopiedStorage make(Args... args) {
+    [[nodiscard]] constexpr static CopiedStorage make(Args... args) {
         return CopiedStorage{object_type(std::forward<Args>(args)...)};
     }
 
-    [[nodiscard]] const object_type* get() const noexcept {
+    [[nodiscard]] constexpr const object_type* get() const noexcept {
         return &mObject;
     }
 
-    [[nodiscard]] object_type* get() noexcept {
+    [[nodiscard]] constexpr object_type* get() noexcept {
         return &mObject;
     }
 
 private:
-    explicit CopiedStorage(const object_type& value) noexcept : mObject{value} {
+    explicit constexpr CopiedStorage(const object_type& value) noexcept : mObject{value} {
     }
 
     object_type mObject{};

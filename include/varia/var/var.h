@@ -157,17 +157,17 @@ namespace varia {
     }
 
     template<typename T>
-    decltype(auto) get(T&& t) noexcept {
+    constexpr decltype(auto) get(T&& t) noexcept {
         return std::forward<T>(t);
     }
 
     template<concepts::Var T>
-    const T::object_type& get(const T& t) noexcept {
+    constexpr const T::object_type& get(const T& t) noexcept {
         return *t;
     }
 
     template<concepts::Var T>
-    T::object_type& get(T& t) noexcept {
+    constexpr T::object_type& get(T& t) noexcept {
         return *t;
     }
 
@@ -188,11 +188,13 @@ namespace varia {
         var& operator=(var&&) = default;
 
         template<typename... Args>
-        var(Args... args) : mStorage{storage_policy::make(std::forward<Args>(args)...)} {
+        constexpr var(Args... args) : mStorage{storage_policy::make(std::forward<Args>(args)...)} {
         }
 
         template<concepts::Var T>
-        var(const T& from) requires std::derived_from<get_object_type<T>, object_type> : mStorage{from.get_storage()} {
+        constexpr var(const T& from) requires std::derived_from<get_object_type<T>, object_type> : mStorage{
+            from.get_storage()
+        } {
         }
 
         var(std::initializer_list<detail::get_value_type<object_type> > li)
@@ -201,44 +203,43 @@ namespace varia {
 
         // std::initializer_list<T> to objects::Array<var<T>>
         var(std::initializer_list<get_object_type<detail::get_value_type<object_type> > > li)
-            requires (objects::concepts::Array<object_type> && concepts::Var<detail::get_value_type<
-                          object_type> >) : mStorage{
-            storage_policy::make(li.size())
-        } {
+            requires (objects::concepts::Array<object_type> &&
+                      concepts::Var<detail::get_value_type<object_type> >) : mStorage{storage_policy::make(li.size())} {
             std::transform(li.begin(), li.end(), object().begin(), [](const auto& elem) {
                 return detail::get_value_type<object_type>{elem};
             });
         }
 
-        var(const objects::concepts::Arithmetic auto& from) requires std::same_as<object_type, objects::String>
+        var(const objects::concepts::Arithmetic auto& from)
+            requires std::same_as<object_type, objects::String>
             : mStorage{storage_policy::make(objects::to_string(get(from)))} {
         }
 
-        [[nodiscard]] const storage_policy& get_storage() const noexcept {
+        [[nodiscard]] constexpr const storage_policy& get_storage() const noexcept {
             return mStorage;
         }
 
-        operator const object_type&() const noexcept {
+        constexpr operator const object_type&() const noexcept {
             return *mStorage.get();
         }
 
-        operator object_type&() noexcept {
+        constexpr operator object_type&() noexcept {
             return *mStorage.get();
         }
 
-        const object_type* operator->() const noexcept {
+        constexpr const object_type* operator->() const noexcept {
             return mStorage.get();
         }
 
-        object_type* operator->() noexcept {
+        constexpr object_type* operator->() noexcept {
             return mStorage.get();
         }
 
-        const object_type& operator*() const noexcept {
+        constexpr const object_type& operator*() const noexcept {
             return object();
         }
 
-        object_type& operator*() noexcept {
+        constexpr object_type& operator*() noexcept {
             return object();
         }
 
@@ -251,11 +252,11 @@ namespace varia {
         }
 
     private:
-        [[nodiscard]] const object_type& object() const {
+        [[nodiscard]] constexpr const object_type& object() const {
             return *mStorage.get();
         }
 
-        [[nodiscard]] object_type& object() {
+        [[nodiscard]] constexpr object_type& object() {
             return *mStorage.get();
         }
 
@@ -299,72 +300,72 @@ namespace varia {
     }
 
     template<typename L, typename R>
-    concepts::Var auto operator+(const L& lhs, const R& rhs) requires (
+    constexpr concepts::Var auto operator+(const L& lhs, const R& rhs) requires (
         (concepts::Var<L> || concepts::Var<R>) && requires { get(lhs) + get(rhs); }) {
         return common_var_type<L, R>(get(lhs) + get(rhs));
     }
 
     template<concepts::Var L, typename R>
-    L& operator+=(L& lhs, const R& rhs) requires requires { get(lhs) += get(rhs); } {
+    constexpr L& operator+=(L& lhs, const R& rhs) requires requires { get(lhs) += get(rhs); } {
         get(lhs) += get(rhs);
         return lhs;
     }
 
     template<typename L, typename R>
-    concepts::Var auto operator-(const L& lhs, const R& rhs) requires (
+    constexpr concepts::Var auto operator-(const L& lhs, const R& rhs) requires (
         (concepts::Var<L> || concepts::Var<R>) && requires { get(lhs) - get(rhs); }) {
         return common_var_type<L, R>(get(lhs) - get(rhs));
     }
 
     template<concepts::Var L, typename R>
-    L& operator-=(L& lhs, const R& rhs) requires requires { get(lhs) -= get(rhs); } {
+    constexpr L& operator-=(L& lhs, const R& rhs) requires requires { get(lhs) -= get(rhs); } {
         get(lhs) -= get(rhs);
         return lhs;
     }
 
     template<typename L, typename R>
-    concepts::Var auto operator*(const L& lhs, const R& rhs) requires (
+    constexpr concepts::Var auto operator*(const L& lhs, const R& rhs) requires (
         (concepts::Var<L> || concepts::Var<R>) && requires { get(lhs) * get(rhs); }) {
         return common_var_type<L, R>(get(lhs) * get(rhs));
     }
 
     template<concepts::Var L, typename R>
-    L& operator*=(L& lhs, const R& rhs) requires requires { get(lhs) *= get(rhs); } {
+    constexpr L& operator*=(L& lhs, const R& rhs) requires requires { get(lhs) *= get(rhs); } {
         get(lhs) *= get(rhs);
         return lhs;
     }
 
     template<typename L, typename R>
-    concepts::Var auto operator/(const L& lhs, const R& rhs) requires (
+    constexpr concepts::Var auto operator/(const L& lhs, const R& rhs) requires (
         (concepts::Var<L> || concepts::Var<R>) && requires { get(lhs) / get(rhs); }) {
         return common_var_type<L, R>(get(lhs) / get(rhs));
     }
 
     template<concepts::Var L, typename R>
-    L& operator/=(L& lhs, const R& rhs) requires requires { get(lhs) /= get(rhs); } {
+    constexpr L& operator/=(L& lhs, const R& rhs) requires requires { get(lhs) /= get(rhs); } {
         get(lhs) /= get(rhs);
         return lhs;
     }
 
     template<typename L, typename R>
-    concepts::Var auto operator%(const L& lhs, const R& rhs) requires (
+    constexpr concepts::Var auto operator%(const L& lhs, const R& rhs) requires (
         (concepts::Var<L> || concepts::Var<R>) && requires { get(lhs) % get(rhs); }) {
         return common_var_type<L, R>(get(lhs) % get(rhs));
     }
 
     template<concepts::Var L, typename R>
-    L& operator%=(L& lhs, const R& rhs) requires requires { get(lhs) %= get(rhs); } {
+    constexpr L& operator%=(L& lhs, const R& rhs) requires requires { get(lhs) %= get(rhs); } {
         get(lhs) %= get(rhs);
         return lhs;
     }
 
     template<concepts::Var T>
-    T operator+(const T& v) requires requires { +get(v); } {
+    constexpr T operator+(const T& v) requires requires { +get(v); } {
         return T{+get(v)};
     }
 
     template<concepts::Var T>
-    T operator-(const T& v) requires requires { -get(v); } {
+    constexpr T operator-(const T& v) requires requires { -get(v); } {
         return T{-get(v)};
     }
 }
