@@ -34,6 +34,7 @@ int main() {
     var arr2 = {"A", "B", "C"};
     println("{}", arr);
     println("{}", arr2);
+    println(arr2[2]);
     arr->resize(i);
     println("Array size {}", arr->size());
 
@@ -66,7 +67,7 @@ int main() {
     String conv2 = false + conv + bo + true;
 
     println(conv2);
-    println("Test {} {}", conv, Num(5));
+    println("Test {} {}", conv, Float(5.56));
 
     var<double, SharedStorage> v1 = 7;
     var<double, CopiedStorage> v2 = v1;

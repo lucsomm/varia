@@ -144,7 +144,6 @@ namespace varia {
     using Bool = var<objects::Bool, CopiedStorage>;
     using Int = var<objects::Int, CopiedStorage>;
     using Float = var<objects::Float, CopiedStorage>;
-    using Num = var<objects::Num, CopiedStorage>;
     using String = var<objects::String, ImmutableSharedStorage>;
 
     template<typename T>
@@ -219,14 +218,11 @@ namespace varia {
             return mStorage;
         }
 
-        operator const object_type&()
-        const
-            noexcept {
+        operator const object_type&() const noexcept {
             return *mStorage.get();
         }
 
-        operator object_type&()
-            noexcept {
+        operator object_type&() noexcept {
             return *mStorage.get();
         }
 
@@ -239,19 +235,27 @@ namespace varia {
         }
 
         const object_type& operator*() const noexcept {
-            return *mStorage.get();
+            return object();
         }
 
         object_type& operator*() noexcept {
-            return *mStorage.get();
+            return object();
+        }
+
+        const auto& operator[](const Int index) const {
+            return object().at(index);
+        }
+
+        auto& operator[](const Int index) {
+            return object().at(index);
         }
 
     private:
-        const object_type& object() const {
+        [[nodiscard]] const object_type& object() const {
             return *mStorage.get();
         }
 
-        object_type& object() {
+        [[nodiscard]] object_type& object() {
             return *mStorage.get();
         }
 
@@ -260,8 +264,11 @@ namespace varia {
 
     var(bool) -> var<objects::Bool, CopiedStorage>;
 
-    template<objects::concepts::Arithmetic T>
-    var(T) -> var<objects::Num, CopiedStorage>;
+    template<std::integral T>
+    var(T) -> var<objects::Int, CopiedStorage>;
+
+    template<std::floating_point T>
+    var(T) -> var<objects::Float, CopiedStorage>;
 
     var(const char*) -> var<objects::String, ImmutableSharedStorage>;
 

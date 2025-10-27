@@ -17,7 +17,6 @@ namespace varia::objects {
     using Bool = bool;
     using Int = int64_t;
     using Float = double;
-    using Num = double;
     using String = std::string;
     template<typename T, typename Alloc = std::allocator<T> >
     using Array = std::vector<T, Alloc>;
