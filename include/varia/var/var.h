@@ -251,7 +251,8 @@ namespace varia {
             });
         }
 
-        constexpr explicit var(const concepts::Float auto from) requires concepts::Int<object_type> : mStorage{
+        constexpr explicit var(const concepts::Arithmetic auto from)
+            requires objects::concepts::Arithmetic<object_type> : mStorage{
             storage_policy::make(static_cast<object_type>(get(from)))
         } {
         }
