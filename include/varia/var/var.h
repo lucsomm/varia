@@ -349,6 +349,9 @@ namespace varia {
     template<typename T>
     var(std::initializer_list<T>) -> var<objects::Array<var<std::decay_t<T> > > >;
 
+    template<objects::concepts::Array T>
+    var(T) -> var<T>;
+
     std::ostream& operator<<(std::ostream& os, const concepts::Var auto& v) {
         os << objects::to_string(get(v));
         return os;

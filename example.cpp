@@ -90,4 +90,7 @@ int main() {
     ftoi = Int(conv2);
     f = Float("45.748342356");
     println(f + " " + ftoi);
+
+    var a1 = objects::Array<Int>{3, 6};
+    var a2 = {2, 1};
 }
