@@ -7,7 +7,7 @@ A transparent value wrapper that:
 ```cpp
   var a = 5; // var<int64_t>
   var b = "Hello"; // var<std::string>
-  var c = {3, 4, 5.5}; // var<std::vector<double>>
+  var c = {3, 4, 5.5}; // var<std::vector<var<double>>>
   String s; // Alias for var<std::string>
 ```
 
