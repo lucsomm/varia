@@ -183,6 +183,9 @@ namespace varia {
 
         template<typename T>
         concept Arithmetic = objects::concepts::Arithmetic<get_object_type<T> >;
+
+        template<typename T>
+        concept StringLike = objects::concepts::StringLike<get_object_type<T> >;
     }
 
     template<typename T>
@@ -243,14 +246,24 @@ namespace varia {
             });
         }
 
+        constexpr explicit var(const concepts::Float auto from) requires concepts::Int<object_type> : mStorage{
+            storage_policy::make(static_cast<object_type>(get(from)))
+        } {
+        }
+
+        explicit var(const concepts::StringLike auto& from) requires concepts::Int<object_type> : mStorage{
+            storage_policy::make(objects::to_int(get(from)))
+        } {
+        }
+
+        explicit var(const concepts::StringLike auto& from) requires concepts::Float<object_type> : mStorage{
+            storage_policy::make(objects::to_float(get(from)))
+        } {
+        }
+
         var(const concepts::Arithmetic auto& from)
             requires std::same_as<object_type, objects::String>
             : mStorage{storage_policy::make(objects::to_string(get(from)))} {
-        }
-
-        constexpr explicit var(const concepts::Float auto from) requires concepts::Int<object_type> : mStorage{
-            storage_policy::make(static_cast<object_type>(from))
-        } {
         }
 
         [[nodiscard]] constexpr const storage_policy& get_storage() const noexcept {
