@@ -186,6 +186,9 @@ namespace varia {
 
         template<typename T>
         concept StringLike = objects::concepts::StringLike<get_object_type<T> >;
+
+        template<typename T>
+        concept FormatableVar = Var<T> && objects::concepts::Formatable<get_object_type<T> >;
     }
 
     template<typename T>
@@ -365,6 +368,30 @@ namespace varia {
         return lhs;
     }
 
+    String operator+(const concepts::FormatableVar auto& lhs, const char* rhs) {
+        return String{objects::to_string(get(lhs)) + rhs};
+    }
+
+    String operator+(const char* lhs, const concepts::FormatableVar auto& rhs) {
+        return String{lhs + objects::to_string(get(rhs))};
+    }
+
+    String operator+(const concepts::FormatableVar auto& lhs, const std::string_view rhs) {
+        return String{objects::to_string(get(lhs)) + rhs};
+    }
+
+    String operator+(const std::string_view lhs, const concepts::FormatableVar auto& rhs) {
+        return String{lhs + objects::to_string(get(rhs))};
+    }
+
+    String operator+(const concepts::FormatableVar auto& lhs, const std::string rhs) {
+        return String{objects::to_string(get(lhs)) + rhs};
+    }
+
+    String operator+(const std::string lhs, const concepts::FormatableVar auto& rhs) {
+        return String{lhs + objects::to_string(get(rhs))};
+    }
+
     template<typename L, typename R>
     constexpr concepts::Var auto operator+(const L& lhs, const R& rhs) requires (
         (concepts::Var<L> || concepts::Var<R>) && requires { get(lhs) + get(rhs); }) {
@@ -437,7 +464,7 @@ namespace varia {
 }
 
 template<varia::concepts::Var T>
-    requires varia::objects::Formatable<varia::get_object_type<T> >
+    requires varia::objects::concepts::Formatable<varia::get_object_type<T> >
 struct VARIA_FORMAT_NS::formatter<T> : VARIA_FORMAT_NS::formatter<varia::get_object_type<T> > {
     template<typename FormatContext>
     auto format(const T& v, FormatContext& ctx) const {

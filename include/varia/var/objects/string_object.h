@@ -5,13 +5,7 @@
 #include "../../formatting.h"
 
 namespace varia::objects {
-    template<typename T>
-    concept Formatable = requires(T t)
-    {
-        { VARIA_FORMAT_NS::format("{}", t) };
-    };
-
-    String to_string(const Formatable auto& value) {
+    String to_string(const concepts::Formatable auto& value) {
         return String{VARIA_FORMAT_NS::format("{}", value)};
     }
 

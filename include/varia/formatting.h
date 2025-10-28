@@ -11,3 +11,11 @@
 
 #define VARIA_FORMAT_NS std
 #endif
+
+namespace varia::objects::concepts {
+    template<typename T>
+    concept Formatable = requires(T t)
+    {
+        { VARIA_FORMAT_NS::format("{}", t) };
+    };
+}
