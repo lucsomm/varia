@@ -8,7 +8,7 @@ public:
 
     template<typename... Args>
     [[nodiscard]] constexpr static CopiedStorage make(Args... args) {
-        return CopiedStorage{object_type(std::forward<Args>(args)...)};
+        return CopiedStorage{object_type{std::forward<Args>(args)...}};
     }
 
     [[nodiscard]] constexpr const object_type* get() const noexcept {

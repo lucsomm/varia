@@ -84,4 +84,7 @@ int main() {
     println(concepts::Copied<detail::get_value_type<Array<int> > >);
     println(concepts::ImmutableShared<detail::get_value_type<Array<std::string> > >);
     println(concepts::Shared<detail::get_value_type<Array<A> > >);
+
+    var f = 8.56758;
+    Int ftoi = Int(f);
 }

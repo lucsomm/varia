@@ -176,6 +176,12 @@ namespace varia {
 
     namespace concepts {
         template<typename T>
+        concept Int = std::integral<get_object_type<T> >;
+
+        template<typename T>
+        concept Float = std::floating_point<get_object_type<T> >;
+
+        template<typename T>
         concept Arithmetic = objects::concepts::Arithmetic<get_object_type<T> >;
     }
 
@@ -237,9 +243,14 @@ namespace varia {
             });
         }
 
-        var(const objects::concepts::Arithmetic auto& from)
+        var(const concepts::Arithmetic auto& from)
             requires std::same_as<object_type, objects::String>
             : mStorage{storage_policy::make(objects::to_string(get(from)))} {
+        }
+
+        constexpr explicit var(const concepts::Float auto from) requires concepts::Int<object_type> : mStorage{
+            storage_policy::make(static_cast<object_type>(from))
+        } {
         }
 
         [[nodiscard]] constexpr const storage_policy& get_storage() const noexcept {
@@ -292,10 +303,10 @@ namespace varia {
 
     var(bool) -> var<objects::Bool, CopiedStorage>;
 
-    template<std::integral T>
+    template<concepts::Int T>
     var(T) -> var<objects::Int, CopiedStorage>;
 
-    template<std::floating_point T>
+    template<concepts::Float T>
     var(T) -> var<objects::Float, CopiedStorage>;
 
     var(const char*) -> var<objects::String, ImmutableSharedStorage>;
