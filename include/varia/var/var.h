@@ -2,6 +2,9 @@
 
 #include <string>
 #include <algorithm>
+#include <concepts>
+#include <type_traits>
+#include <utility>
 
 #include "objects/object_hierarchy.h"
 #include "objects/string_object.h"
@@ -141,26 +144,35 @@ namespace varia {
     template<typename L, typename R>
     using common_var_type = detail::CommonVar<std::decay_t<L>, std::decay_t<R> >::type;
 
-    using Bool = var<objects::Bool, CopiedStorage>;
-    using Int = var<objects::Int, CopiedStorage>;
-    using Float = var<objects::Float, CopiedStorage>;
-    using String = var<objects::String, ImmutableSharedStorage>;
+    namespace detail {
+        template<typename T>
+        struct DefaultStoredVar {
+            using type =
+            std::conditional_t<concepts::Var<T>,
+                T,
+                std::conditional_t<objects::concepts::String<T>,
+                    var<T, ImmutableSharedStorage>,
+                    std::conditional_t<objects::concepts::Primitive<T>,
+                        var<T, CopiedStorage>,
+                        var<T>
+                    >
+                >
+            >;
+        };
+    }
 
     template<typename T>
-    using Array = var<objects::Array<
-        std::conditional_t<concepts::Var<T>,
-            T,
-            std::conditional_t<objects::concepts::String<T>,
-                String,
-                std::conditional_t<objects::concepts::Primitive<T>,
-                    var<T, CopiedStorage>,
-                    var<T>
-                >
-            >
-        >
-    > >;
-    /*template<typename K, typename V>
-    using Map = var<objects::Map<var<get_object_type<K> >, var<get_object_type<V> > > >;*/
+    using default_stored_var_type = detail::DefaultStoredVar<std::decay_t<T> >::type;
+
+    using Bool = default_stored_var_type<objects::Bool>;
+    using Int = default_stored_var_type<objects::Int>;
+    using Float = default_stored_var_type<objects::Float>;
+    using String = default_stored_var_type<objects::String>;
+
+    template<typename T>
+    using Array = var<objects::Array<default_stored_var_type<T> > >;
+    template<typename K, typename V>
+    using Map = var<objects::Map<default_stored_var_type<K>, default_stored_var_type<V> > >;
 
     namespace concepts {
         template<typename T>
