@@ -1,7 +1,7 @@
 #pragma once
 #include <concepts>
 
-namespace varia {
+namespace varia::concepts {
     template<typename T>
     concept Storage = requires(T t)
     {

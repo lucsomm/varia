@@ -14,7 +14,8 @@
 #include "storage/storage.h"
 
 namespace varia {
-    template<typename Obj, template <typename > typename S = SharedStorage> requires Storage<S<std::decay_t<Obj> > >
+    template<typename Obj, template <typename > typename S = SharedStorage> requires concepts::Storage<S<std::decay_t<
+        Obj> > >
     class var;
 
     namespace detail {
@@ -206,7 +207,7 @@ namespace varia {
         return *t;
     }
 
-    template<typename Obj, template <typename > typename S> requires Storage<S<std::decay_t<Obj> > >
+    template<typename Obj, template <typename > typename S> requires concepts::Storage<S<std::decay_t<Obj> > >
     class var {
     public:
         using object_type = std::decay_t<Obj>;
