@@ -132,7 +132,8 @@ namespace varia {
         struct CommonVar {
             using object_type = std::common_type_t<get_object_type<L>, get_object_type<R> >;
 
-            using type = std::conditional_t<concepts::Shared<L> || concepts::Shared<R>,
+            using type = std::conditional_t<!objects::concepts::Primitive<object_type> && (concepts::Shared<L> ||
+                                                concepts::Shared<R>),
                 var<object_type>,
                 std::conditional_t<concepts::ImmutableShared<L> || concepts::ImmutableShared<R>,
                     var<object_type, ImmutableSharedStorage>,
