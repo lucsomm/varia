@@ -7,7 +7,7 @@ public:
     using object_type = T;
 
     template<typename... Args>
-    [[nodiscard]] constexpr static CopiedStorage make(Args... args) {
+    [[nodiscard]] constexpr static CopiedStorage make(Args&&... args) {
         return CopiedStorage{object_type{std::forward<Args>(args)...}};
     }
 

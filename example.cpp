@@ -87,7 +87,6 @@ int main() {
 
     var f = 8.56758;
     Int ftoi = Int(f);
-    ftoi = Int(conv2);
     f = Float("45.748342356");
     println(f + " " + ftoi);
 

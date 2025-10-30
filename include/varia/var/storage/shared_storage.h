@@ -9,7 +9,7 @@ namespace varia {
         using object_type = T;
 
         template<typename... Args>
-        [[nodiscard]] static SharedStorage make(Args... args) {
+        [[nodiscard]] static SharedStorage make(Args&&... args) {
             return SharedStorage{std::make_shared<object_type>(std::forward<Args>(args)...)};
         }
 

@@ -190,6 +190,9 @@ namespace varia {
         concept StringLike = objects::concepts::StringLike<get_object_type<T> >;
 
         template<typename T>
+        concept Formatable = objects::concepts::Formatable<get_object_type<T> >;
+
+        template<typename T>
         concept FormatableVar = Var<T> && objects::concepts::Formatable<get_object_type<T> >;
     }
 
@@ -218,6 +221,25 @@ namespace varia {
                         std::same_as<storage_policy, SharedStorage<object_type> >),
                       "varia static assert: primitive objects should not be stored with SharedStorage");
 
+        template<typename T>
+        static constexpr bool float_to_int_v{concepts::Float<T> && std::integral<object_type>};
+
+        template<typename T>
+        static constexpr bool string_to_arithmetic_v{
+            concepts::StringLike<T> && objects::concepts::Arithmetic<object_type>
+        };
+
+        template<typename T>
+        static constexpr bool needs_explicit_conversion_v{float_to_int_v<T> || string_to_arithmetic_v<T>};
+
+        template<typename T>
+        static constexpr bool to_string_v{!objects::concepts::StringLike<T> && objects::concepts::String<object_type>};
+
+        template<typename T>
+        static constexpr bool needs_conversion_v{needs_explicit_conversion_v<T> || to_string_v<T>};
+
+        var() = default;
+
         ~var() = default;
 
         var(const var&) = default;
@@ -228,8 +250,41 @@ namespace varia {
 
         var& operator=(var&&) = default;
 
-        template<typename... Args>
-        constexpr var(Args... args) : mStorage{storage_policy::make(std::forward<Args>(args)...)} {
+        template<concepts::Float T>
+        constexpr object_type convert_forward(T&& t) requires float_to_int_v<T> {
+            return static_cast<object_type>(get(t));
+        }
+
+        template<concepts::StringLike T>
+        constexpr object_type convert_forward(T&& t) requires string_to_arithmetic_v<T> {
+            if constexpr (concepts::Float<T>) {
+                return objects::to_float(get(t));
+            } else {
+                return objects::to_int(get(t));
+            }
+        }
+
+        template<concepts::Formatable T>
+        constexpr object_type convert_forward(T&& t) requires to_string_v<T> {
+            return objects::to_string(get(t));
+        }
+
+        template<typename T>
+        constexpr decltype(auto) convert_forward(T&& t) requires (!needs_conversion_v<T>) {
+            return std::forward<T>(t);
+        }
+
+        template<typename T>
+        explicit (needs_explicit_conversion_v<T>)
+        constexpr var(T&& t) : mStorage{
+            storage_policy::make(convert_forward(t))
+        } {
+        }
+
+        template<typename T1, typename T2, typename... Args>
+        constexpr var(T1&& t1, T1&& t2, Args&&... args) : mStorage{
+            storage_policy::make(std::forward<T1>(t1), std::forward<T2>(t2), std::forward<Args>(args)...)
+        } {
         }
 
         template<concepts::Var T>
@@ -249,27 +304,6 @@ namespace varia {
             std::transform(li.begin(), li.end(), object().begin(), [](const auto& elem) {
                 return detail::get_value_type<object_type>{elem};
             });
-        }
-
-        constexpr explicit var(const concepts::Arithmetic auto from)
-            requires objects::concepts::Arithmetic<object_type> : mStorage{
-            storage_policy::make(static_cast<object_type>(get(from)))
-        } {
-        }
-
-        explicit var(const concepts::StringLike auto& from) requires concepts::Int<object_type> : mStorage{
-            storage_policy::make(objects::to_int(get(from)))
-        } {
-        }
-
-        explicit var(const concepts::StringLike auto& from) requires concepts::Float<object_type> : mStorage{
-            storage_policy::make(objects::to_float(get(from)))
-        } {
-        }
-
-        var(const concepts::Arithmetic auto& from)
-            requires std::same_as<object_type, objects::String>
-            : mStorage{storage_policy::make(objects::to_string(get(from)))} {
         }
 
         [[nodiscard]] constexpr const storage_policy& get_storage() const noexcept {
