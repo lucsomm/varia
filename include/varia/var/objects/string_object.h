@@ -9,7 +9,14 @@ namespace varia::objects {
         return String{VARIA_FORMAT_NS::format("{}", value)};
     }
 
-    inline Int to_int(const std::string_view str) {
+    template<concepts::Arithmetic T>
+    T to_arithmetic(const std::string_view str) {
+        T value{};
+        std::from_chars(str.data(), str.data() + str.size(), value);
+        return value;
+    }
+
+    /*inline Int to_int(const std::string_view str) {
         Int value{};
         std::from_chars(str.data(), str.data() + str.size(), value);
         return value;
@@ -19,5 +26,5 @@ namespace varia::objects {
         Float value{};
         std::from_chars(str.data(), str.data() + str.size(), value);
         return value;
-    }
+    }*/
 }

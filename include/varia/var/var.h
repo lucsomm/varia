@@ -257,11 +257,7 @@ namespace varia {
 
         template<concepts::StringLike T>
         constexpr object_type convert_forward(T&& t) requires string_to_arithmetic_v<T> {
-            if constexpr (concepts::Float<T>) {
-                return objects::to_float(get(t));
-            } else {
-                return objects::to_int(get(t));
-            }
+            return objects::to_arithmetic<object_type>(get(t));
         }
 
         template<concepts::Formatable T>
