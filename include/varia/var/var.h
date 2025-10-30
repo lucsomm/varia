@@ -252,17 +252,17 @@ namespace varia {
 
         template<concepts::Float T>
         constexpr object_type convert_forward(T&& t) requires float_to_int_v<T> {
-            return static_cast<object_type>(get(t));
+            return static_cast<object_type>(get(std::forward<T>(t)));
         }
 
         template<concepts::StringLike T>
         constexpr object_type convert_forward(T&& t) requires string_to_arithmetic_v<T> {
-            return objects::to_arithmetic<object_type>(get(t));
+            return objects::to_arithmetic<object_type>(get(std::forward<T>(t)));
         }
 
         template<concepts::Formatable T>
         constexpr object_type convert_forward(T&& t) requires to_string_v<T> {
-            return objects::to_string(get(t));
+            return objects::to_string(get(std::forward<T>(t)));
         }
 
         template<typename T>
@@ -273,7 +273,7 @@ namespace varia {
         template<typename T>
         explicit (needs_explicit_conversion_v<T>)
         constexpr var(T&& t) : mStorage{
-            storage_policy::make(convert_forward(t))
+            storage_policy::make(convert_forward(std::forward<T>(t)))
         } {
         }
 
