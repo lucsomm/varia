@@ -15,16 +15,4 @@ namespace varia::objects {
         std::from_chars(str.data(), str.data() + str.size(), value);
         return value;
     }
-
-    /*inline Int to_int(const std::string_view str) {
-        Int value{};
-        std::from_chars(str.data(), str.data() + str.size(), value);
-        return value;
-    }
-
-    inline Float to_float(const std::string_view str) {
-        Float value{};
-        std::from_chars(str.data(), str.data() + str.size(), value);
-        return value;
-    }*/
 }

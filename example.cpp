@@ -81,9 +81,9 @@ int main() {
     constexpr var ce_res = ce_test / ce_test2;
     println(ce_res);
 
-    println(concepts::Copied<detail::get_value_type<Array<int> > >);
-    println(concepts::ImmutableShared<detail::get_value_type<Array<std::string> > >);
-    println(concepts::Shared<detail::get_value_type<Array<A> > >);
+    println(concepts::Copied<detail::get_value_t<Array<int> > >);
+    println(concepts::ImmutableShared<detail::get_value_t<Array<std::string> > >);
+    println(concepts::Shared<detail::get_value_t<Array<A> > >);
 
     var f = 8.56758;
     Int ftoi = Int(f);

@@ -47,7 +47,7 @@ namespace varia {
     }
 
     template<typename T>
-    using get_object_type = detail::GetObject<std::decay_t<T> >::type;
+    using get_object_t = detail::GetObject<std::decay_t<T> >::type;
 
     namespace detail {
         template<typename T>
@@ -67,7 +67,7 @@ namespace varia {
         };
 
         template<typename T>
-        using get_value_type = GetValue<get_object_type<T> >::type;
+        using get_value_t = GetValue<get_object_t<T> >::type;
     }
 
     namespace detail {
@@ -96,24 +96,24 @@ namespace varia {
     }
 
     template<typename T>
-    using get_storage_policy_type = detail::GetStorage<std::decay_t<T> >::policy;
+    using get_storage_policy_t = detail::GetStorage<std::decay_t<T> >::policy;
 
     namespace detail {
         template<typename T>
         struct IsCopied {
-            static constexpr bool value{std::same_as<get_storage_policy_type<T>, CopiedStorage<get_object_type<T> > >};
+            static constexpr bool value{std::same_as<get_storage_policy_t<T>, CopiedStorage<get_object_t<T> > >};
         };
 
         template<typename T>
         struct IsImmutableShared {
             static constexpr bool value{
-                std::same_as<get_storage_policy_type<T>, ImmutableSharedStorage<get_object_type<T> > >
+                std::same_as<get_storage_policy_t<T>, ImmutableSharedStorage<get_object_t<T> > >
             };
         };
 
         template<typename T>
         struct IsShared {
-            static constexpr bool value{std::same_as<get_storage_policy_type<T>, SharedStorage<get_object_type<T> > >};
+            static constexpr bool value{std::same_as<get_storage_policy_t<T>, SharedStorage<get_object_t<T> > >};
         };
     }
 
@@ -131,7 +131,7 @@ namespace varia {
     namespace detail {
         template<typename L, typename R>
         struct CommonVar {
-            using object_type = std::common_type_t<get_object_type<L>, get_object_type<R> >;
+            using object_type = std::common_type_t<get_object_t<L>, get_object_t<R> >;
 
             using type = std::conditional_t<!objects::concepts::Primitive<object_type> && (concepts::Shared<L> ||
                                                 concepts::Shared<R>),
@@ -145,14 +145,14 @@ namespace varia {
     }
 
     template<typename L, typename R>
-    using common_var_type = detail::CommonVar<std::decay_t<L>, std::decay_t<R> >::type;
+    using common_var_t = detail::CommonVar<std::decay_t<L>, std::decay_t<R> >::type;
 
     namespace detail {
         template<typename T>
         struct DefaultStoragePolicy {
             using type =
             std::conditional_t<concepts::Var<T>,
-                get_storage_policy_type<T>,
+                get_storage_policy_t<T>,
                 std::conditional_t<objects::concepts::String<T> || std::derived_from<T, Construct_ImmutableShared>
                     ,
                     ImmutableSharedStorage<T>,
@@ -166,7 +166,7 @@ namespace varia {
     }
 
     template<typename T>
-    using default_storage_policy_type = detail::DefaultStoragePolicy<T>::type;
+    using default_storage_policy_t = detail::DefaultStoragePolicy<T>::type;
 
     using Bool = var<objects::Bool>;
     using Int = var<objects::Int>;
@@ -184,22 +184,22 @@ namespace varia {
 
     namespace concepts {
         template<typename T>
-        concept Int = std::integral<get_object_type<T> >;
+        concept Int = std::integral<get_object_t<T> >;
 
         template<typename T>
-        concept Float = std::floating_point<get_object_type<T> >;
+        concept Float = std::floating_point<get_object_t<T> >;
 
         template<typename T>
-        concept Arithmetic = objects::concepts::Arithmetic<get_object_type<T> >;
+        concept Arithmetic = objects::concepts::Arithmetic<get_object_t<T> >;
 
         template<typename T>
-        concept StringLike = objects::concepts::StringLike<get_object_type<T> >;
+        concept StringLike = objects::concepts::StringLike<get_object_t<T> >;
 
         template<typename T>
-        concept Formatable = objects::concepts::Formatable<get_object_type<T> >;
+        concept Formatable = objects::concepts::Formatable<get_object_t<T> >;
 
         template<typename T>
-        concept FormatableVar = Var<T> && objects::concepts::Formatable<get_object_type<T> >;
+        concept FormatableVar = Var<T> && objects::concepts::Formatable<get_object_t<T> >;
     }
 
     template<typename T>
@@ -223,7 +223,7 @@ namespace varia {
     public:
         using object_type = std::decay_t<Obj>;
         using storage_policy = std::conditional_t<std::same_as<S<object_type>, DefaultStorage<object_type> >,
-            default_storage_policy_type<object_type>,
+            default_storage_policy_t<object_type>,
             S<object_type> >;
 
         static_assert(!(objects::concepts::Primitive<object_type> &&
@@ -231,27 +231,29 @@ namespace varia {
                       "varia static assert: primitive objects should not be stored with SharedStorage");
 
         template<typename T>
-        static constexpr bool float_to_int_v{concepts::Float<T> && std::integral<object_type>};
+        static constexpr bool is_float_to_int_v{concepts::Float<T> && std::integral<object_type>};
 
         template<typename T>
-        static constexpr bool string_to_arithmetic_v{
+        static constexpr bool is_string_to_arithmetic_v{
             concepts::StringLike<T> && objects::concepts::Arithmetic<object_type>
         };
 
         template<typename T>
-        static constexpr bool needs_explicit_conversion_v{float_to_int_v<T> || string_to_arithmetic_v<T>};
+        static constexpr bool needs_explicit_conversion_v{is_float_to_int_v<T> || is_string_to_arithmetic_v<T>};
 
         template<typename T>
-        static constexpr bool to_string_v{!objects::concepts::StringLike<T> && objects::concepts::String<object_type>};
+        static constexpr bool is_to_string_v{
+            !objects::concepts::StringLike<T> && objects::concepts::String<object_type>
+        };
 
         template<typename T>
-        static constexpr bool needs_conversion_v{needs_explicit_conversion_v<T> || to_string_v<T>};
+        static constexpr bool needs_conversion_v{needs_explicit_conversion_v<T> || is_to_string_v<T>};
 
         template<typename T>
-        static constexpr bool same_var_v{std::same_as<std::remove_cvref_t<T>, var>};
+        static constexpr bool is_same_var_v{std::same_as<std::remove_cvref_t<T>, var>};
 
         template<typename T>
-        static constexpr bool derived_var_v{concepts::Var<T> && std::derived_from<get_object_type<T>, object_type>};
+        static constexpr bool is_derived_var_v{concepts::Var<T> && std::derived_from<get_object_t<T>, object_type>};
 
         var() = default;
 
@@ -266,17 +268,17 @@ namespace varia {
         var& operator=(var&&) = default;
 
         template<concepts::Float T>
-        constexpr object_type convert_forward(T&& t) requires float_to_int_v<T> {
+        constexpr object_type convert_forward(T&& t) requires is_float_to_int_v<T> {
             return static_cast<object_type>(get(std::forward<T>(t)));
         }
 
         template<concepts::StringLike T>
-        constexpr object_type convert_forward(T&& t) requires string_to_arithmetic_v<T> {
+        constexpr object_type convert_forward(T&& t) requires is_string_to_arithmetic_v<T> {
             return objects::to_arithmetic<object_type>(get(std::forward<T>(t)));
         }
 
         template<concepts::Formatable T>
-        constexpr object_type convert_forward(T&& t) requires to_string_v<T> {
+        constexpr object_type convert_forward(T&& t) requires is_to_string_v<T> {
             return objects::to_string(get(std::forward<T>(t)));
         }
 
@@ -287,13 +289,13 @@ namespace varia {
 
         template<typename T>
         explicit (needs_explicit_conversion_v<T>)
-        constexpr var(T&& t) requires (!same_var_v<T> && !derived_var_v<T>) : mStorage{
+        constexpr var(T&& t) requires (!is_same_var_v<T> && !is_derived_var_v<T>) : mStorage{
             storage_policy::make(convert_forward(std::forward<T>(t)))
         } {
         }
 
         template<concepts::Var T>
-        var(const T& from) requires (!same_var_v<T> && derived_var_v<T>) : mStorage{
+        var(const T& from) requires (!is_same_var_v<T> && is_derived_var_v<T>) : mStorage{
             from.get_storage()
         } {
         }
@@ -304,16 +306,16 @@ namespace varia {
         } {
         }
 
-        var(std::initializer_list<detail::get_value_type<object_type> > li)
+        var(std::initializer_list<detail::get_value_t<object_type> > li)
             requires objects::concepts::Array<object_type> : mStorage(storage_policy::make(li)) {
         }
 
         // std::initializer_list<T> to objects::Array<var<T>>
-        var(std::initializer_list<get_object_type<detail::get_value_type<object_type> > > li)
+        var(std::initializer_list<get_object_t<detail::get_value_t<object_type> > > li)
             requires (objects::concepts::Array<object_type> &&
-                      concepts::Var<detail::get_value_type<object_type> >) : mStorage{storage_policy::make(li.size())} {
+                      concepts::Var<detail::get_value_t<object_type> >) : mStorage{storage_policy::make(li.size())} {
             std::transform(li.begin(), li.end(), object().begin(), [](const auto& elem) {
-                return detail::get_value_type<object_type>{elem};
+                return detail::get_value_t<object_type>{elem};
             });
         }
 
@@ -446,7 +448,7 @@ namespace varia {
     template<typename L, typename R>
     constexpr concepts::Var auto operator+(const L& lhs, const R& rhs) requires (
         (concepts::Var<L> || concepts::Var<R>) && requires { get(lhs) + get(rhs); }) {
-        return common_var_type<L, R>(get(lhs) + get(rhs));
+        return common_var_t<L, R>(get(lhs) + get(rhs));
     }
 
     template<concepts::Var L, typename R>
@@ -458,7 +460,7 @@ namespace varia {
     template<typename L, typename R>
     constexpr concepts::Var auto operator-(const L& lhs, const R& rhs) requires (
         (concepts::Var<L> || concepts::Var<R>) && requires { get(lhs) - get(rhs); }) {
-        return common_var_type<L, R>(get(lhs) - get(rhs));
+        return common_var_t<L, R>(get(lhs) - get(rhs));
     }
 
     template<concepts::Var L, typename R>
@@ -470,7 +472,7 @@ namespace varia {
     template<typename L, typename R>
     constexpr concepts::Var auto operator*(const L& lhs, const R& rhs) requires (
         (concepts::Var<L> || concepts::Var<R>) && requires { get(lhs) * get(rhs); }) {
-        return common_var_type<L, R>(get(lhs) * get(rhs));
+        return common_var_t<L, R>(get(lhs) * get(rhs));
     }
 
     template<concepts::Var L, typename R>
@@ -482,7 +484,7 @@ namespace varia {
     template<typename L, typename R>
     constexpr concepts::Var auto operator/(const L& lhs, const R& rhs) requires (
         (concepts::Var<L> || concepts::Var<R>) && requires { get(lhs) / get(rhs); }) {
-        return common_var_type<L, R>(get(lhs) / get(rhs));
+        return common_var_t<L, R>(get(lhs) / get(rhs));
     }
 
     template<concepts::Var L, typename R>
@@ -494,7 +496,7 @@ namespace varia {
     template<typename L, typename R>
     constexpr concepts::Var auto operator%(const L& lhs, const R& rhs) requires (
         (concepts::Var<L> || concepts::Var<R>) && requires { get(lhs) % get(rhs); }) {
-        return common_var_type<L, R>(get(lhs) % get(rhs));
+        return common_var_t<L, R>(get(lhs) % get(rhs));
     }
 
     template<concepts::Var L, typename R>
@@ -515,10 +517,10 @@ namespace varia {
 }
 
 template<varia::concepts::Var T>
-    requires varia::objects::concepts::Formatable<varia::get_object_type<T> >
-struct VARIA_FORMAT_NS::formatter<T> : VARIA_FORMAT_NS::formatter<varia::get_object_type<T> > {
+    requires varia::objects::concepts::Formatable<varia::get_object_t<T> >
+struct VARIA_FORMAT_NS::formatter<T> : VARIA_FORMAT_NS::formatter<varia::get_object_t<T> > {
     template<typename FormatContext>
     auto format(const T& v, FormatContext& ctx) const {
-        return VARIA_FORMAT_NS::formatter<varia::get_object_type<T> >::format(varia::get(v), ctx);
+        return VARIA_FORMAT_NS::formatter<varia::get_object_t<T> >::format(varia::get(v), ctx);
     }
 };
