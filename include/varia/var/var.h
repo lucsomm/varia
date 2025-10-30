@@ -9,12 +9,13 @@
 #include "objects/object_hierarchy.h"
 #include "objects/string_object.h"
 #include "storage/copied_storage.h"
+#include "storage/default_storage.h"
 #include "storage/immutable_shared_storage.h"
 #include "storage/shared_storage.h"
 #include "storage/storage.h"
 
 namespace varia {
-    template<typename Obj, template <typename > typename S = SharedStorage> requires concepts::Storage<S<std::decay_t<
+    template<typename Obj, template <typename > typename S = DefaultStorage> requires concepts::Storage<S<std::decay_t<
         Obj> > >
     class var;
 
@@ -95,24 +96,24 @@ namespace varia {
     }
 
     template<typename T>
-    using get_storage_policy = detail::GetStorage<std::decay_t<T> >::policy;
+    using get_storage_policy_type = detail::GetStorage<std::decay_t<T> >::policy;
 
     namespace detail {
         template<typename T>
         struct IsCopied {
-            static constexpr bool value{std::same_as<get_storage_policy<T>, CopiedStorage<get_object_type<T> > >};
+            static constexpr bool value{std::same_as<get_storage_policy_type<T>, CopiedStorage<get_object_type<T> > >};
         };
 
         template<typename T>
         struct IsImmutableShared {
             static constexpr bool value{
-                std::same_as<get_storage_policy<T>, ImmutableSharedStorage<get_object_type<T> > >
+                std::same_as<get_storage_policy_type<T>, ImmutableSharedStorage<get_object_type<T> > >
             };
         };
 
         template<typename T>
         struct IsShared {
-            static constexpr bool value{std::same_as<get_storage_policy<T>, SharedStorage<get_object_type<T> > >};
+            static constexpr bool value{std::same_as<get_storage_policy_type<T>, SharedStorage<get_object_type<T> > >};
         };
     }
 
@@ -134,7 +135,7 @@ namespace varia {
 
             using type = std::conditional_t<!objects::concepts::Primitive<object_type> && (concepts::Shared<L> ||
                                                 concepts::Shared<R>),
-                var<object_type>,
+                var<object_type, SharedStorage>,
                 std::conditional_t<concepts::ImmutableShared<L> || concepts::ImmutableShared<R>,
                     var<object_type, ImmutableSharedStorage>,
                     var<object_type, CopiedStorage>
@@ -148,15 +149,16 @@ namespace varia {
 
     namespace detail {
         template<typename T>
-        struct DefaultStoredVar {
+        struct DefaultStoragePolicy {
             using type =
             std::conditional_t<concepts::Var<T>,
-                T,
-                std::conditional_t<objects::concepts::String<T>,
-                    var<T, ImmutableSharedStorage>,
-                    std::conditional_t<objects::concepts::Primitive<T>,
-                        var<T, CopiedStorage>,
-                        var<T>
+                get_storage_policy_type<T>,
+                std::conditional_t<objects::concepts::String<T> || std::derived_from<T, Construct_ImmutableShared>
+                    ,
+                    ImmutableSharedStorage<T>,
+                    std::conditional_t<objects::concepts::Primitive<T> || std::derived_from<T, Construct_Copied>,
+                        CopiedStorage<T>,
+                        SharedStorage<T>
                     >
                 >
             >;
@@ -164,17 +166,21 @@ namespace varia {
     }
 
     template<typename T>
-    using default_stored_var_type = detail::DefaultStoredVar<std::decay_t<T> >::type;
+    using default_storage_policy_type = detail::DefaultStoragePolicy<T>::type;
 
-    using Bool = default_stored_var_type<objects::Bool>;
-    using Int = default_stored_var_type<objects::Int>;
-    using Float = default_stored_var_type<objects::Float>;
-    using String = default_stored_var_type<objects::String>;
+    using Bool = var<objects::Bool>;
+    using Int = var<objects::Int>;
+    using Float = var<objects::Float>;
+    using String = var<objects::String>;
 
     template<typename T>
-    using Array = var<objects::Array<default_stored_var_type<T> > >;
+    using Array = var<objects::Array<var<T> > >;
     template<typename K, typename V>
-    using Map = var<objects::Map<default_stored_var_type<K>, default_stored_var_type<V> > >;
+    using Map = var<objects::Map<var<K>, var<V> > >;
+
+    using Copied = var<Construct_Copied>;
+    using ImmutableShared = var<Construct_ImmutableShared>;
+    using Shared = var<Construct_Shared>;
 
     namespace concepts {
         template<typename T>
@@ -211,11 +217,14 @@ namespace varia {
         return *t;
     }
 
-    template<typename Obj, template <typename > typename S> requires concepts::Storage<S<std::decay_t<Obj> > >
+    template<typename Obj, template <typename > typename S> requires concepts::Storage<S<std::decay_t<
+        Obj> > >
     class var {
     public:
         using object_type = std::decay_t<Obj>;
-        using storage_policy = S<object_type>;
+        using storage_policy = std::conditional_t<std::same_as<S<object_type>, DefaultStorage<object_type> >,
+            default_storage_policy_type<object_type>,
+            S<object_type> >;
 
         static_assert(!(objects::concepts::Primitive<object_type> &&
                         std::same_as<storage_policy, SharedStorage<object_type> >),
@@ -237,6 +246,12 @@ namespace varia {
 
         template<typename T>
         static constexpr bool needs_conversion_v{needs_explicit_conversion_v<T> || to_string_v<T>};
+
+        template<typename T>
+        static constexpr bool same_var_v{std::same_as<std::remove_cvref_t<T>, var>};
+
+        template<typename T>
+        static constexpr bool derived_var_v{concepts::Var<T> && std::derived_from<get_object_type<T>, object_type>};
 
         var() = default;
 
@@ -272,20 +287,20 @@ namespace varia {
 
         template<typename T>
         explicit (needs_explicit_conversion_v<T>)
-        constexpr var(T&& t) : mStorage{
+        constexpr var(T&& t) requires (!same_var_v<T> && !derived_var_v<T>) : mStorage{
             storage_policy::make(convert_forward(std::forward<T>(t)))
+        } {
+        }
+
+        template<concepts::Var T>
+        var(const T& from) requires (!same_var_v<T> && derived_var_v<T>) : mStorage{
+            from.get_storage()
         } {
         }
 
         template<typename T1, typename T2, typename... Args>
         constexpr var(T1&& t1, T1&& t2, Args&&... args) : mStorage{
             storage_policy::make(std::forward<T1>(t1), std::forward<T2>(t2), std::forward<Args>(args)...)
-        } {
-        }
-
-        template<concepts::Var T>
-        constexpr var(const T& from) requires std::derived_from<get_object_type<T>, object_type> : mStorage{
-            from.get_storage()
         } {
         }
 

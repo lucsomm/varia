@@ -4,16 +4,18 @@
 #include <unordered_map>
 #include <vector>
 
+namespace varia {
+    struct Construct_Copied {
+    };
+
+    struct Construct_ImmutableShared {
+    };
+
+    struct Construct_Shared {
+    };
+}
+
 namespace varia::objects {
-    struct CopiedObject {
-    };
-
-    struct ImmutableSharedObject {
-    };
-
-    struct SharedObject {
-    };
-
     using Bool = bool;
     using Int = int64_t;
     using Float = double;

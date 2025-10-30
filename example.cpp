@@ -11,7 +11,7 @@ varclass(A,
          }
 
          Int a = 8;
-)
+         , ImmutableShared)
 
 varclass(B,
          void greet() override {
