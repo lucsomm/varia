@@ -13,7 +13,7 @@ namespace varia {
             return {};
         }
 
-        [[maybe_unused]] constexpr object_type* get() noexcept {
+        [[maybe_unused]] constexpr pointer get() noexcept {
             return {};
         }
     };
