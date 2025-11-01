@@ -217,8 +217,7 @@ namespace varia {
         return *t;
     }
 
-    template<typename Obj, template <typename > typename S> requires concepts::Storage<S<std::decay_t<
-        Obj> > >
+    template<typename Obj, template <typename > typename S> requires concepts::Storage<S<std::decay_t<Obj> > >
     class var {
     public:
         using object_type = std::decay_t<Obj>;
@@ -302,18 +301,18 @@ namespace varia {
         }
 
         constexpr operator const object_type&() const noexcept {
-            return *mStorage.get();
+            return object();
         }
 
         constexpr operator object_type&() noexcept {
-            return *mStorage.get();
+            return object();
         }
 
-        constexpr const object_type* operator->() const noexcept {
+        constexpr storage_policy::const_pointer operator->() const noexcept {
             return mStorage.get();
         }
 
-        constexpr object_type* operator->() noexcept {
+        constexpr storage_policy::pointer operator->() noexcept {
             return mStorage.get();
         }
 

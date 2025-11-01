@@ -7,6 +7,8 @@ namespace varia {
     class ImmutableSharedStorage {
     public:
         using object_type = T;
+        using pointer = std::shared_ptr<object_type>;
+        using const_pointer = const pointer;
 
         template<typename... Args>
         [[nodiscard]] static ImmutableSharedStorage make(Args&&... args) {
@@ -15,30 +17,26 @@ namespace varia {
 
         template<std::derived_from<object_type> Derived>
         explicit ImmutableSharedStorage(const ImmutableSharedStorage<Derived>& other) noexcept : mObject{
-            other.get_shared_ptr()
+            other.get()
         } {
         }
 
-        [[nodiscard]] const std::shared_ptr<object_type>& get_shared_ptr() const noexcept {
+        [[nodiscard]] const_pointer& get() const noexcept {
             return mObject;
         }
 
-        [[nodiscard]] const object_type* get() const noexcept {
-            return mObject.get();
-        }
-
-        [[nodiscard]] object_type* get() {
+        [[nodiscard]] pointer& get() {
             if (mObject.use_count() > 1) {
                 mObject = std::make_shared<object_type>(*mObject);
             }
 
-            return mObject.get();
+            return mObject;
         }
 
     private:
         explicit ImmutableSharedStorage(std::shared_ptr<object_type> ptr) noexcept : mObject{ptr} {
         }
 
-        std::shared_ptr<object_type> mObject;
+        pointer mObject;
     };
 }

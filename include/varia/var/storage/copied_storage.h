@@ -5,17 +5,19 @@ template<typename T = void>
 class CopiedStorage {
 public:
     using object_type = T;
+    using pointer = object_type*;
+    using const_pointer = const object_type*;
 
     template<typename... Args>
     [[nodiscard]] constexpr static CopiedStorage make(Args&&... args) {
         return CopiedStorage{object_type{std::forward<Args>(args)...}};
     }
 
-    [[nodiscard]] constexpr const object_type* get() const noexcept {
+    [[nodiscard]] constexpr const_pointer get() const noexcept {
         return &mObject;
     }
 
-    [[nodiscard]] constexpr object_type* get() noexcept {
+    [[nodiscard]] constexpr pointer get() noexcept {
         return &mObject;
     }
 

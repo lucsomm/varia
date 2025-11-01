@@ -7,6 +7,8 @@ namespace varia {
     class SharedStorage {
     public:
         using object_type = T;
+        using pointer = std::shared_ptr<object_type>;
+        using const_pointer = pointer;
 
         template<typename... Args>
         [[nodiscard]] static SharedStorage make(Args&&... args) {
@@ -14,25 +16,21 @@ namespace varia {
         }
 
         template<std::derived_from<object_type> Derived>
-        explicit SharedStorage(const SharedStorage<Derived>& other) noexcept : mObject{other.get_shared_ptr()} {
+        explicit SharedStorage(const SharedStorage<Derived>& other) noexcept : mObject{other.get()} {
         }
 
-        [[nodiscard]] const std::shared_ptr<object_type>& get_shared_ptr() const noexcept {
+        [[nodiscard]] const pointer& get() const noexcept {
             return mObject;
         }
 
-        [[nodiscard]] const object_type* get() const noexcept {
-            return mObject.get();
-        }
-
-        [[nodiscard]] object_type* get() noexcept {
-            return mObject.get();
+        [[nodiscard]] pointer& get() noexcept {
+            return mObject;
         }
 
     private:
-        explicit SharedStorage(std::shared_ptr<object_type> ptr) noexcept : mObject{ptr} {
+        explicit SharedStorage(pointer ptr) noexcept : mObject{ptr} {
         }
 
-        std::shared_ptr<object_type> mObject;
+        pointer mObject;
     };
 }
