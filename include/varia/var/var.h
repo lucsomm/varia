@@ -230,6 +230,7 @@ namespace varia {
                         std::same_as<storage_policy, SharedStorage<object_type> >),
                       "varia static assert: primitive objects should not be stored with SharedStorage");
 
+    private:
         template<typename T>
         static constexpr bool is_float_to_int_v{concepts::Float<T> && std::integral<object_type>};
 
@@ -255,6 +256,7 @@ namespace varia {
         template<typename T>
         static constexpr bool is_derived_var_v{concepts::Var<T> && std::derived_from<get_object_t<T>, object_type>};
 
+    public:
         var() = default;
 
         ~var() = default;
@@ -267,26 +269,6 @@ namespace varia {
 
         var& operator=(var&&) = default;
 
-        template<concepts::Float T>
-        constexpr object_type convert_forward(T&& t) requires is_float_to_int_v<T> {
-            return static_cast<object_type>(get(std::forward<T>(t)));
-        }
-
-        template<concepts::StringLike T>
-        constexpr object_type convert_forward(T&& t) requires is_string_to_arithmetic_v<T> {
-            return objects::to_arithmetic<object_type>(get(std::forward<T>(t)));
-        }
-
-        template<concepts::Formatable T>
-        constexpr object_type convert_forward(T&& t) requires is_to_string_v<T> {
-            return objects::to_string(get(std::forward<T>(t)));
-        }
-
-        template<typename T>
-        constexpr decltype(auto) convert_forward(T&& t) requires (!needs_conversion_v<T>) {
-            return std::forward<T>(t);
-        }
-
         template<typename T>
         explicit (needs_explicit_conversion_v<T>)
         constexpr var(T&& t) requires (!is_same_var_v<T> && !is_derived_var_v<T>) : mStorage{
@@ -296,7 +278,7 @@ namespace varia {
 
         template<concepts::Var T>
         var(const T& from) requires (!is_same_var_v<T> && is_derived_var_v<T>) : mStorage{
-            from.get_storage()
+            get_storage(from)
         } {
         }
 
@@ -317,10 +299,6 @@ namespace varia {
             std::transform(li.begin(), li.end(), object().begin(), [](const auto& elem) {
                 return detail::get_value_t<object_type>{elem};
             });
-        }
-
-        [[nodiscard]] constexpr const storage_policy& get_storage() const noexcept {
-            return mStorage;
         }
 
         constexpr operator const object_type&() const noexcept {
@@ -355,7 +333,30 @@ namespace varia {
             return object().at(index);
         }
 
+        template<concepts::Var U>
+        friend const get_storage_policy_t<U>& get_storage(const U& u);
+
     private:
+        template<concepts::Float T>
+        [[nodiscard]] constexpr object_type convert_forward(T&& t) requires is_float_to_int_v<T> {
+            return static_cast<object_type>(get(std::forward<T>(t)));
+        }
+
+        template<concepts::StringLike T>
+        [[nodiscard]] constexpr object_type convert_forward(T&& t) requires is_string_to_arithmetic_v<T> {
+            return objects::to_arithmetic<object_type>(get(std::forward<T>(t)));
+        }
+
+        template<concepts::Formatable T>
+        [[nodiscard]] constexpr object_type convert_forward(T&& t) requires is_to_string_v<T> {
+            return objects::to_string(get(std::forward<T>(t)));
+        }
+
+        template<typename T>
+        [[nodiscard]] constexpr decltype(auto) convert_forward(T&& t) requires (!needs_conversion_v<T>) {
+            return std::forward<T>(t);
+        }
+
         [[nodiscard]] constexpr const object_type& object() const {
             return *mStorage.get();
         }
@@ -399,6 +400,11 @@ namespace varia {
 
     template<objects::concepts::Array T>
     var(T) -> var<T>;
+
+    template<concepts::Var U>
+    [[nodiscard]] const get_storage_policy_t<U>& get_storage(const U& u) {
+        return u.mStorage;
+    }
 
     std::ostream& operator<<(std::ostream& os, const concepts::Var auto& v) {
         os << objects::to_string(get(v));
