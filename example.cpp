@@ -20,6 +20,14 @@ varclass(B,
 
          , A)
 
+varstruct(D,);
+varstruct(G,);
+
+varstruct(C,
+          Int four{4};
+
+          , D, G)
+
 int main() {
     println("Hello, World!");
     Int i = 5;
