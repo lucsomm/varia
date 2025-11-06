@@ -26,7 +26,7 @@ varstruct(G,);
 varstruct(C,
           Int four{4};
 
-          , D, G)
+          , D)
 
 int main() {
     println("Hello, World!");
