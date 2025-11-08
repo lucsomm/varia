@@ -22,6 +22,11 @@ namespace varia::detail {
     static constexpr bool is_single_inheritance_v = IsSingleInheritance<Args...>::value;
 }
 
+#define VARIA_DEFAULT_COPY_MOVE_CONSTRUCTORS(name) \
+    name(const name& other) = default; \
+    name& operator=(const name& other) = default; \
+    name(name&& other) = default; \
+    name& operator=(name&& other) = default;
 
 #define varclass(name, body, ...) \
     class Construct_##name __VA_OPT__( : public Construct_##__VA_ARGS__ )  { \
@@ -33,10 +38,7 @@ namespace varia::detail {
         \
         Construct_##name() = default; \
         virtual ~Construct_##name() = default; \
-        Construct_##name(const Construct_##name& other) = default; \
-        Construct_##name& operator=(const Construct_##name& other) = default; \
-        Construct_##name(Construct_##name&& other) = default; \
-        Construct_##name& operator=(Construct_##name&& other) = default;  \
+        VARIA_DEFAULT_COPY_MOVE_CONSTRUCTORS(Construct_##name) \
         \
         body \
     }; \
@@ -57,10 +59,7 @@ namespace varia::detail {
         \
         Construct_##name() = default; \
         ~Construct_##name() = default; \
-        Construct_##name(const Construct_##name& other) = default; \
-        Construct_##name& operator=(const Construct_##name& other) = default; \
-        Construct_##name(Construct_##name&& other) = default; \
-        Construct_##name& operator=(Construct_##name&& other) = default;  \
+        VARIA_DEFAULT_COPY_MOVE_CONSTRUCTORS(Construct_##name) \
         \
         body \
     }; \
