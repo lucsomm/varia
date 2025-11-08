@@ -22,11 +22,11 @@ namespace varia::detail {
     static constexpr bool is_single_inheritance_v = IsSingleInheritance<Args...>::value;
 }
 
-#define VARIA_DEFAULT_COPY_MOVE_CONSTRUCTORS(name) \
-    name(const name& other) = default; \
-    name& operator=(const name& other) = default; \
-    name(name&& other) = default; \
-    name& operator=(name&& other) = default;
+#define VARIA_DEFAULT_COPY_MOVE_CONSTRUCTORS(class_name) \
+    class_name(const class_name&) = default; \
+    class_name& operator=(const class_name&) = default; \
+    class_name(class_name&&) = default; \
+    class_name& operator=(class_name&&) = default;
 
 #define varclass(name, body, ...) \
     class Construct_##name __VA_OPT__( : public Construct_##__VA_ARGS__ )  { \
