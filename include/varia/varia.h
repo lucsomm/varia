@@ -68,3 +68,20 @@ namespace varia::detail {
     static_assert(!std::is_polymorphic_v<VARIA_OBJECT(name)>); \
     \
     using name = varia::var<VARIA_OBJECT(name), CopiedStorage>;
+
+#define template_varclass(name, body, ...) \
+    class VARIA_OBJECT(name) __VA_OPT__( : public VARIA_OBJECT(__VA_ARGS__)) { \
+    public: \
+        static_assert(varia::detail::is_single_inheritance_v<__VA_OPT__(VARIA_OBJECT(__VA_ARGS__))>, \
+        "varia: varclass cannot inherit from multiple types: "#__VA_ARGS__); \
+        \
+        using name = varia::var<VARIA_OBJECT(name)>; \
+        \
+        VARIA_OBJECT(name)() = default; \
+        virtual ~VARIA_OBJECT(name)() = default; \
+        VARIA_DEFAULT_COPY_MOVE_CONSTRUCTORS(VARIA_OBJECT(name)) \
+        \
+        body \
+    }; \
+    template<typename... Args> \
+    using name = varia::var<VARIA_OBJECT(name)<Args...>, varia::SharedStorage>;

@@ -28,6 +28,11 @@ varstruct(C,
 
           , D)
 
+template<typename T = Float>
+template_varclass(Number,
+                  T number;
+)
+
 int main() {
     println("Hello, World!");
     Int i = 5;
@@ -100,4 +105,6 @@ int main() {
 
     var a1 = objects::Array<Int>{3, 6};
     var a2 = {2, 1};
+
+    Number<> fnumber;
 }
