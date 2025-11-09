@@ -26,6 +26,10 @@ varclass(B,
          println("Hello, I am B.");
          }
 
+         void test() override {
+         println("Idk");
+         }
+
          , A, Tester)
 
 varstruct(D,);

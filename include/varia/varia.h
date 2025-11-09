@@ -48,7 +48,7 @@ namespace varia::objects {
     class_name(class_name&&) = default; \
     class_name& operator=(class_name&&) = default;
 
-#define varinterface(name, body, ...) \
+#define VARIA_VARINTERFACE(name, body, ...) \
     struct Construct_##name : varia::objects::InterfaceTag __VA_OPT__(, __VA_ARGS__) { \
         static_assert(varia::objects::concepts::AllInterfaces<__VA_ARGS__>, \
             "varia: varinterface can only inherit from other interfaces"); \
@@ -62,7 +62,7 @@ namespace varia::objects {
         "varia: varinterface virtual member functions must be pure virtual"); \
     using name = Construct_##name;
 
-#define varclass(name, body, ...) \
+#define VARIA_VARCLASS(name, body, ...) \
     class Construct_##name __VA_OPT__( : public Construct_##__VA_ARGS__ )  { \
     public: \
         static_assert(varia::objects::is_single_inheritance_v<__VA_OPT__(Construct_##__VA_ARGS__)>, \
@@ -78,7 +78,7 @@ namespace varia::objects {
     }; \
     using name = varia::var<Construct_##name, SharedStorage>;
 
-#define varstruct(name, body, ...) \
+#define VARIA_VARSTRUCT(name, body, ...) \
     struct Construct_##name __VA_OPT__( : public Construct_##__VA_ARGS__ ) { \
         static_assert(varia::objects::is_single_inheritance_v<__VA_OPT__(Construct_##__VA_ARGS__)>, \
             "varia: varstruct cannot inherit from multiple types: "#__VA_ARGS__); \
@@ -101,7 +101,7 @@ namespace varia::objects {
     \
     using name = varia::var<Construct_##name, CopiedStorage>;
 
-#define template_varclass(name, body, ...) \
+#define VARIA_TEMPLATE_VARCLASS(name, body, ...) \
     class Construct_##name __VA_OPT__( : public Construct_##__VA_ARGS__) { \
     public: \
         static_assert(varia::objects::is_single_inheritance_v<__VA_OPT__(Construct_##__VA_ARGS__)>, \
