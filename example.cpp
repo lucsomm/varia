@@ -1,27 +1,36 @@
 #include <iostream>
 #include "include/varia/using_varia.h"
 
+varinterface(Greeter,
+             virtual void greet() = 0;
+)
+
 varclass(A,
          explicit Construct_A(int a) {
          this->a = a;
          }
 
-         virtual void greet() {
+         void greet() override {
          println("Hello, I am A.");
          }
 
          Int a = 8;
-         , ImmutableShared)
+         , Greeter)
+
+varinterface(Tester,
+             virtual void test() = 0;
+)
 
 varclass(B,
          void greet() override {
          println("Hello, I am B.");
          }
 
-         , A)
+         , A, Tester)
 
 varstruct(D,);
 varstruct(G,);
+varstruct(F,);
 
 varstruct(C,
           Int four{4};
