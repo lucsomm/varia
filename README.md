@@ -1,13 +1,13 @@
 # Varia
-A modern header-only **C++20 library** that transforms C++ syntax into what resembles a **strongly typed scripting language**. 
+A modern header-only **C++20 library** that transforms C++ syntax into what looks like a **statically typed scripting language**. 
 
 ## `var` - `auto`++
-A transparent value wrapper that:
-### Deduces to more sensible, default initialized types
+A wrapper that:
+### Deduces to more practical types
 ```cpp
   var a = 5; // var<int64_t>
   var b = "Hello"; // var<std::string>
-  var c = {3, 4, 5.5}; // var<std::vector<var<double>>>
+  var c = {3., .4, 5.5}; // var<std::vector<var<double>>>
   String s; // Alias for var<std::string>
 ```
 
