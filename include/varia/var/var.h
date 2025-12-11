@@ -8,11 +8,10 @@
 
 #include "objects/object_hierarchy.h"
 #include "objects/string_object.h"
-#include "storage/copied_storage.h"
 #include "storage/default_storage.h"
-#include "storage/immutable_shared_storage.h"
 #include "storage/shared_storage.h"
 #include "storage/storage.h"
+#include "storage/value_storage.h"
 
 namespace varia {
     template<typename Obj, template <typename > typename S = DefaultStorage> requires concepts::Storage<S<std::decay_t<
@@ -86,7 +85,7 @@ namespace varia {
     namespace detail {
         template<typename T>
         struct GetStorage {
-            using policy = CopiedStorage<T>;
+            using policy = ValueStorage<T>;
         };
 
         template<concepts::Var T>
@@ -100,15 +99,8 @@ namespace varia {
 
     namespace detail {
         template<typename T>
-        struct IsCopied {
-            static constexpr bool value{std::same_as<get_storage_policy_t<T>, CopiedStorage<get_object_t<T> > >};
-        };
-
-        template<typename T>
-        struct IsImmutableShared {
-            static constexpr bool value{
-                std::same_as<get_storage_policy_t<T>, ImmutableSharedStorage<get_object_t<T> > >
-            };
+        struct IsValueStored {
+            static constexpr bool value{std::same_as<get_storage_policy_t<T>, ValueStorage<get_object_t<T> > >};
         };
 
         template<typename T>
@@ -119,10 +111,7 @@ namespace varia {
 
     namespace concepts {
         template<typename T>
-        concept Copied = detail::IsCopied<std::decay_t<T> >::value;
-
-        template<typename T>
-        concept ImmutableShared = detail::IsImmutableShared<std::decay_t<T> >::value;
+        concept ValueStored = detail::IsValueStored<std::decay_t<T> >::value;
 
         template<typename T>
         concept Shared = detail::IsShared<std::decay_t<T> >::value;
@@ -136,10 +125,7 @@ namespace varia {
             using type = std::conditional_t<!objects::concepts::Primitive<object_type> && (concepts::Shared<L> ||
                                                 concepts::Shared<R>),
                 var<object_type, SharedStorage>,
-                std::conditional_t<concepts::ImmutableShared<L> || concepts::ImmutableShared<R>,
-                    var<object_type, ImmutableSharedStorage>,
-                    var<object_type, CopiedStorage>
-                >
+                var<object_type, ValueStorage>
             >;
         };
     }
@@ -153,13 +139,9 @@ namespace varia {
             using type =
             std::conditional_t<concepts::Var<T>,
                 get_storage_policy_t<T>,
-                std::conditional_t<objects::concepts::String<T> || std::derived_from<T, Construct_ImmutableShared>
-                    ,
-                    ImmutableSharedStorage<T>,
-                    std::conditional_t<objects::concepts::Primitive<T> || std::derived_from<T, Construct_Copied>,
-                        CopiedStorage<T>,
-                        SharedStorage<T>
-                    >
+                std::conditional_t<objects::concepts::Primitive<T> || std::derived_from<T, Construct_Value>,
+                    ValueStorage<T>,
+                    SharedStorage<T>
                 >
             >;
         };
@@ -178,8 +160,7 @@ namespace varia {
     template<typename K, typename V>
     using Map = var<objects::Map<var<K>, var<V> > >;
 
-    using Copied = var<Construct_Copied>;
-    using ImmutableShared = var<Construct_ImmutableShared>;
+    using Value = var<Construct_Value>;
     using Shared = var<Construct_Shared>;
 
     namespace concepts {
@@ -367,29 +348,29 @@ namespace varia {
         storage_policy mStorage{storage_policy::make()};
     };
 
-    var(bool) -> var<objects::Bool, CopiedStorage>;
+    var(bool) -> var<objects::Bool, ValueStorage>;
 
     template<concepts::Int T>
-    var(T) -> var<objects::Int, CopiedStorage>;
+    var(T) -> var<objects::Int, ValueStorage>;
 
     template<concepts::Float T>
-    var(T) -> var<objects::Float, CopiedStorage>;
+    var(T) -> var<objects::Float, ValueStorage>;
 
-    var(const char*) -> var<objects::String, ImmutableSharedStorage>;
+    var(const char*) -> var<objects::String, ValueStorage>;
 
-    var(std::string_view) -> var<objects::String, ImmutableSharedStorage>;
+    var(std::string_view) -> var<objects::String, ValueStorage>;
 
     template<objects::concepts::Pointer T>
-    var(T) -> var<T, CopiedStorage>;
+    var(T) -> var<T, ValueStorage>;
 
     template<objects::concepts::Arithmetic T>
-    var(std::initializer_list<T>) -> var<objects::Array<var<T, CopiedStorage> > >;
+    var(std::initializer_list<T>) -> var<objects::Array<var<T, ValueStorage> > >;
 
     template<objects::concepts::StringLike T>
-    var(std::initializer_list<T>) -> var<objects::Array<var<T, ImmutableSharedStorage> > >;
+    var(std::initializer_list<T>) -> var<objects::Array<var<T, ValueStorage> > >;
 
     template<objects::concepts::Pointer T> requires (!std::same_as<T, const char*>)
-    var(std::initializer_list<T>) -> var<objects::Array<var<T, CopiedStorage> > >;
+    var(std::initializer_list<T>) -> var<objects::Array<var<T, ValueStorage> > >;
 
     template<concepts::Var T>
     var(std::initializer_list<T>) -> var<objects::Array<T> >;

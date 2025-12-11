@@ -99,7 +99,7 @@ namespace varia::objects {
     }; \
     static_assert(!std::is_polymorphic_v<Construct_##name>); \
     \
-    using name = varia::var<Construct_##name, CopiedStorage>;
+    using name = varia::var<Construct_##name, ValueStorage>;
 
 #define VARIA_TEMPLATE_VARCLASS(name, body, ...) \
     class Construct_##name __VA_OPT__( : public Construct_##__VA_ARGS__) { \
@@ -116,4 +116,4 @@ namespace varia::objects {
         body \
     }; \
     template<typename... Args> \
-    using name = varia::var<Construct_##name<Args...>, varia::SharedStorage>;
+    using name = varia::var<Construct_##name<Args...>, SharedStorage>;

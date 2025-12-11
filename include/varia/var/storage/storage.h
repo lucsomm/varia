@@ -9,3 +9,4 @@ namespace varia::concepts {
         { t.get() } -> std::convertible_to<typename T::pointer>;
     };
 }
+

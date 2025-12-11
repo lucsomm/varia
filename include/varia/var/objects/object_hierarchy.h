@@ -5,10 +5,7 @@
 #include <vector>
 
 namespace varia {
-    struct Construct_Copied {
-    };
-
-    struct Construct_ImmutableShared {
+    struct Construct_Value {
     };
 
     struct Construct_Shared {
