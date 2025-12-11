@@ -208,7 +208,7 @@ namespace varia {
 
         static_assert(!(objects::concepts::Primitive<object_type> &&
                         std::same_as<storage_policy, RefStorage<object_type> >),
-                      "varia static assert: primitive objects should not be stored with RefStorage");
+                      "varia static assert: primitive objects should be stored with ValueStorage");
 
     private:
         template<typename T>
