@@ -76,7 +76,7 @@ namespace varia::objects {
         \
         body \
     }; \
-    using name = varia::var<Construct_##name, SharedStorage>;
+    using name = varia::var<Construct_##name, RefStorage>;
 
 #define VARIA_VARSTRUCT(name, body, ...) \
     struct Construct_##name __VA_OPT__( : public Construct_##__VA_ARGS__ ) { \
@@ -116,4 +116,4 @@ namespace varia::objects {
         body \
     }; \
     template<typename... Args> \
-    using name = varia::var<Construct_##name<Args...>, SharedStorage>;
+    using name = varia::var<Construct_##name<Args...>, RefStorage>;

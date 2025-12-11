@@ -100,16 +100,16 @@ int main() {
     var<double, ValueStorage> v1 = 7;
     var<double, ValueStorage> v2 = v1;
     var v3 = v1 + v2;
-    println(concepts::Shared<decltype(v3)>);
+    println(concepts::Ref<decltype(v3)>);
 
     constexpr var ce_test = 6.;
     constexpr var ce_test2 = 10;
     constexpr var ce_res = ce_test / ce_test2;
     println(ce_res);
 
-    println(concepts::ValueStored<detail::get_value_t<Array<int> > >);
-    println(concepts::ValueStored<detail::get_value_t<Array<std::string> > >);
-    println(concepts::Shared<detail::get_value_t<Array<A> > >);
+    println(concepts::Value<detail::get_value_t<Array<int> > >);
+    println(concepts::Value<detail::get_value_t<Array<std::string> > >);
+    println(concepts::Ref<detail::get_value_t<Array<A> > >);
 
     var f = 8.56758;
     Int ftoi = Int(f);

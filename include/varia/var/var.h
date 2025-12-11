@@ -9,7 +9,7 @@
 #include "objects/object_hierarchy.h"
 #include "objects/string_object.h"
 #include "storage/default_storage.h"
-#include "storage/shared_storage.h"
+#include "storage/ref_storage.h"
 #include "storage/storage.h"
 #include "storage/value_storage.h"
 
@@ -99,22 +99,22 @@ namespace varia {
 
     namespace detail {
         template<typename T>
-        struct IsValueStored {
+        struct IsValue {
             static constexpr bool value{std::same_as<get_storage_policy_t<T>, ValueStorage<get_object_t<T> > >};
         };
 
         template<typename T>
-        struct IsShared {
-            static constexpr bool value{std::same_as<get_storage_policy_t<T>, SharedStorage<get_object_t<T> > >};
+        struct IsRef {
+            static constexpr bool value{std::same_as<get_storage_policy_t<T>, RefStorage<get_object_t<T> > >};
         };
     }
 
     namespace concepts {
         template<typename T>
-        concept ValueStored = detail::IsValueStored<std::decay_t<T> >::value;
+        concept Value = detail::IsValue<std::decay_t<T> >::value;
 
         template<typename T>
-        concept Shared = detail::IsShared<std::decay_t<T> >::value;
+        concept Ref = detail::IsRef<std::decay_t<T> >::value;
     }
 
     namespace detail {
@@ -122,9 +122,9 @@ namespace varia {
         struct CommonVar {
             using object_type = std::common_type_t<get_object_t<L>, get_object_t<R> >;
 
-            using type = std::conditional_t<!objects::concepts::Primitive<object_type> && (concepts::Shared<L> ||
-                                                concepts::Shared<R>),
-                var<object_type, SharedStorage>,
+            using type = std::conditional_t<!objects::concepts::Primitive<object_type> && (concepts::Ref<L> ||
+                                                concepts::Ref<R>),
+                var<object_type, RefStorage>,
                 var<object_type, ValueStorage>
             >;
         };
@@ -141,7 +141,7 @@ namespace varia {
                 get_storage_policy_t<T>,
                 std::conditional_t<objects::concepts::Primitive<T> || std::derived_from<T, Construct_Value>,
                     ValueStorage<T>,
-                    SharedStorage<T>
+                    RefStorage<T>
                 >
             >;
         };
@@ -161,7 +161,7 @@ namespace varia {
     using Map = var<objects::Map<var<K>, var<V> > >;
 
     using Value = var<Construct_Value>;
-    using Shared = var<Construct_Shared>;
+    using Ref = var<Construct_Ref>;
 
     namespace concepts {
         template<typename T>
@@ -207,8 +207,8 @@ namespace varia {
             S<object_type> >;
 
         static_assert(!(objects::concepts::Primitive<object_type> &&
-                        std::same_as<storage_policy, SharedStorage<object_type> >),
-                      "varia static assert: primitive objects should not be stored with SharedStorage");
+                        std::same_as<storage_policy, RefStorage<object_type> >),
+                      "varia static assert: primitive objects should not be stored with RefStorage");
 
     private:
         template<typename T>

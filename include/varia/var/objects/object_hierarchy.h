@@ -8,7 +8,7 @@ namespace varia {
     struct Construct_Value {
     };
 
-    struct Construct_Shared {
+    struct Construct_Ref {
     };
 }
 
