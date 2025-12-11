@@ -160,9 +160,6 @@ namespace varia {
     template<typename K, typename V>
     using Map = var<objects::Map<var<K>, var<V> > >;
 
-    using Value = var<Construct_Value>;
-    using Ref = var<Construct_Ref>;
-
     namespace concepts {
         template<typename T>
         concept Int = std::integral<get_object_t<T> >;
@@ -206,9 +203,9 @@ namespace varia {
             default_storage_policy_t<object_type>,
             S<object_type> >;
 
-        static_assert(!(objects::concepts::Primitive<object_type> &&
+        static_assert(!(objects::concepts::Fundamental<object_type> &&
                         std::same_as<storage_policy, RefStorage<object_type> >),
-                      "varia static assert: primitive objects should be stored with ValueStorage");
+                      "varia static assert: fundamental objects should be stored as values");
 
     private:
         template<typename T>

@@ -37,6 +37,9 @@ namespace varia::objects {
 
     namespace concepts {
         template<typename T>
+        concept Fundamental = std::is_fundamental_v<std::remove_cvref_t<T> >;
+
+        template<typename T>
         concept Arithmetic = std::is_arithmetic_v<std::remove_cvref_t<T> >;
 
         template<typename T>
@@ -52,7 +55,7 @@ namespace varia::objects {
         concept Array = detail::is_array_object_v<std::remove_cvref_t<T> >;
 
         template<typename T>
-        concept Primitive = Arithmetic<T> || StringLike<T> || Pointer<T>;
+        concept Primitive = Fundamental<T> || StringLike<T>;
     }
 }
 
