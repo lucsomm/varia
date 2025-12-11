@@ -11,7 +11,7 @@
 #include "storage/default_storage.h"
 #include "storage/ref_storage.h"
 #include "storage/storage.h"
-#include "storage/value_storage.h"
+#include "storage/val_storage.h"
 
 namespace varia {
     template<typename Obj, template <typename > typename S = DefaultStorage> requires concepts::Storage<S<std::decay_t<
@@ -56,17 +56,17 @@ namespace varia {
         };
 
         template<typename T>
-        struct GetValue {
+        struct GetValueType {
             using type = T;
         };
 
         template<HasValueType T>
-        struct GetValue<T> {
+        struct GetValueType<T> {
             using type = typename T::value_type;
         };
 
         template<typename T>
-        using get_value_t = GetValue<get_object_t<T> >::type;
+        using get_value_type_t = GetValueType<get_object_t<T> >::type;
     }
 
     namespace detail {
@@ -85,7 +85,7 @@ namespace varia {
     namespace detail {
         template<typename T>
         struct GetStorage {
-            using policy = ValueStorage<T>;
+            using policy = ValStorage<T>;
         };
 
         template<concepts::Var T>
@@ -99,8 +99,8 @@ namespace varia {
 
     namespace detail {
         template<typename T>
-        struct IsValue {
-            static constexpr bool value{std::same_as<get_storage_policy_t<T>, ValueStorage<get_object_t<T> > >};
+        struct IsVal {
+            static constexpr bool value{std::same_as<get_storage_policy_t<T>, ValStorage<get_object_t<T> > >};
         };
 
         template<typename T>
@@ -111,7 +111,7 @@ namespace varia {
 
     namespace concepts {
         template<typename T>
-        concept Value = detail::IsValue<std::decay_t<T> >::value;
+        concept Val = detail::IsVal<std::decay_t<T> >::value;
 
         template<typename T>
         concept Ref = detail::IsRef<std::decay_t<T> >::value;
@@ -125,7 +125,7 @@ namespace varia {
             using type = std::conditional_t<!objects::concepts::Primitive<object_type> && (concepts::Ref<L> ||
                                                 concepts::Ref<R>),
                 var<object_type, RefStorage>,
-                var<object_type, ValueStorage>
+                var<object_type, ValStorage>
             >;
         };
     }
@@ -140,7 +140,7 @@ namespace varia {
             std::conditional_t<concepts::Var<T>,
                 get_storage_policy_t<T>,
                 std::conditional_t<objects::concepts::Primitive<T> || std::derived_from<T, Construct_Value>,
-                    ValueStorage<T>,
+                    ValStorage<T>,
                     RefStorage<T>
                 >
             >;
@@ -179,6 +179,12 @@ namespace varia {
         template<typename T>
         concept FormatableVar = Var<T> && objects::concepts::Formatable<get_object_t<T> >;
     }
+
+    template<typename T>
+    using val = var<T, ValStorage>;
+
+    template<typename T>
+    using ref = var<T, RefStorage>;
 
     template<typename T>
     constexpr decltype(auto) get(T&& t) noexcept {
@@ -265,16 +271,18 @@ namespace varia {
         } {
         }
 
-        var(std::initializer_list<detail::get_value_t<object_type> > li)
+        var(std::initializer_list<detail::get_value_type_t<object_type> > li)
             requires objects::concepts::Array<object_type> : mStorage(storage_policy::make(li)) {
         }
 
         // std::initializer_list<T> to objects::Array<var<T>>
-        var(std::initializer_list<get_object_t<detail::get_value_t<object_type> > > li)
+        var(std::initializer_list<get_object_t<detail::get_value_type_t<object_type> > > li)
             requires (objects::concepts::Array<object_type> &&
-                      concepts::Var<detail::get_value_t<object_type> >) : mStorage{storage_policy::make(li.size())} {
+                      concepts::Var<detail::get_value_type_t<object_type> >) : mStorage{
+            storage_policy::make(li.size())
+        } {
             std::transform(li.begin(), li.end(), object().begin(), [](const auto& elem) {
-                return detail::get_value_t<object_type>{elem};
+                return detail::get_value_type_t<object_type>{elem};
             });
         }
 
@@ -345,29 +353,29 @@ namespace varia {
         storage_policy mStorage{storage_policy::make()};
     };
 
-    var(bool) -> var<objects::Bool, ValueStorage>;
+    var(bool) -> var<objects::Bool, ValStorage>;
 
     template<concepts::Int T>
-    var(T) -> var<objects::Int, ValueStorage>;
+    var(T) -> var<objects::Int, ValStorage>;
 
     template<concepts::Float T>
-    var(T) -> var<objects::Float, ValueStorage>;
+    var(T) -> var<objects::Float, ValStorage>;
 
-    var(const char*) -> var<objects::String, ValueStorage>;
+    var(const char*) -> var<objects::String, ValStorage>;
 
-    var(std::string_view) -> var<objects::String, ValueStorage>;
+    var(std::string_view) -> var<objects::String, ValStorage>;
 
     template<objects::concepts::Pointer T>
-    var(T) -> var<T, ValueStorage>;
+    var(T) -> var<T, ValStorage>;
 
     template<objects::concepts::Arithmetic T>
-    var(std::initializer_list<T>) -> var<objects::Array<var<T, ValueStorage> > >;
+    var(std::initializer_list<T>) -> var<objects::Array<var<T, ValStorage> > >;
 
     template<objects::concepts::StringLike T>
-    var(std::initializer_list<T>) -> var<objects::Array<var<T, ValueStorage> > >;
+    var(std::initializer_list<T>) -> var<objects::Array<var<T, ValStorage> > >;
 
     template<objects::concepts::Pointer T> requires (!std::same_as<T, const char*>)
-    var(std::initializer_list<T>) -> var<objects::Array<var<T, ValueStorage> > >;
+    var(std::initializer_list<T>) -> var<objects::Array<var<T, ValStorage> > >;
 
     template<concepts::Var T>
     var(std::initializer_list<T>) -> var<objects::Array<T> >;

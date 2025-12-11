@@ -10,15 +10,15 @@ namespace varia {
     concept NonTrivial = !std::is_trivially_copyable_v<T> || sizeof(T) > trivial_size_max;
 
     template<typename T /* , bool ForceInPlace = false */>
-    class ValueStorage {
+    class ValStorage {
     public:
         using object_type = T;
         using pointer = object_type*;
         using const_pointer = const object_type*;
 
         template<typename... Args>
-        [[nodiscard]] static constexpr ValueStorage make(Args&&... args) {
-            return ValueStorage{std::forward<Args>(args)...};
+        [[nodiscard]] static constexpr ValStorage make(Args&&... args) {
+            return ValStorage{std::forward<Args>(args)...};
         }
 
         [[nodiscard]] constexpr const_pointer get() const noexcept {
@@ -31,26 +31,26 @@ namespace varia {
 
     private:
         template<typename... Args>
-        explicit constexpr ValueStorage(Args... args) noexcept : mObject(std::forward<Args>(args)...) {
+        explicit constexpr ValStorage(Args... args) noexcept : mObject(std::forward<Args>(args)...) {
         }
 
         object_type mObject{};
     };
 
     template<NonTrivial T>
-    class ValueStorage<T /* , false */> {
+    class ValStorage<T /* , false */> {
     public:
         using object_type = T;
         using pointer = std::shared_ptr<object_type>;
         using const_pointer = const pointer;
 
         template<typename... Args>
-        [[nodiscard]] static ValueStorage make(Args&&... args) {
-            return ValueStorage{std::make_shared<object_type>(std::forward<Args>(args)...)};
+        [[nodiscard]] static ValStorage make(Args&&... args) {
+            return ValStorage{std::make_shared<object_type>(std::forward<Args>(args)...)};
         }
 
         template<std::derived_from<object_type> Derived>
-        explicit ValueStorage(const ValueStorage<Derived>& other) noexcept : mObject{
+        explicit ValStorage(const ValStorage<Derived>& other) noexcept : mObject{
             other.get()
         } {
         }
@@ -68,7 +68,7 @@ namespace varia {
         }
 
     private:
-        explicit ValueStorage(std::shared_ptr<object_type> ptr) noexcept : mObject{ptr} {
+        explicit ValStorage(std::shared_ptr<object_type> ptr) noexcept : mObject{ptr} {
         }
 
         pointer mObject;

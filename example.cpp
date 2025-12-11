@@ -97,8 +97,8 @@ int main() {
     println(conv2);
     println("Test {} {}", conv, Float(5.56));
 
-    var<double, ValueStorage> v1 = 7;
-    var<double, ValueStorage> v2 = v1;
+    val<double> v1 = 7;
+    val<double> v2 = v1;
     var v3 = v1 + v2;
     println(concepts::Ref<decltype(v3)>);
 
@@ -107,9 +107,9 @@ int main() {
     constexpr var ce_res = ce_test / ce_test2;
     println(ce_res);
 
-    println(concepts::Value<detail::get_value_t<Array<int> > >);
-    println(concepts::Value<detail::get_value_t<Array<std::string> > >);
-    println(concepts::Ref<detail::get_value_t<Array<A> > >);
+    println(concepts::Val<detail::get_value_type_t<Array<int> > >);
+    println(concepts::Val<detail::get_value_type_t<Array<std::string> > >);
+    println(concepts::Ref<detail::get_value_type_t<Array<A> > >);
 
     var f = 8.56758;
     Int ftoi = Int(f);
