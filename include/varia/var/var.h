@@ -181,10 +181,10 @@ namespace varia {
     }
 
     template<typename T>
-    using val = var<T, ValStorage>;
+    using val = var<get_object_t<T>, ValStorage>;
 
     template<typename T>
-    using ref = var<T, RefStorage>;
+    using ref = var<get_object_t<T>, RefStorage>;
 
     template<typename T>
     constexpr decltype(auto) get(T&& t) noexcept {
