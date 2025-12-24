@@ -20,17 +20,17 @@ namespace varia {
 
     namespace detail {
         template<typename>
-        struct is_var : std::false_type {
+        struct IsVar : std::false_type {
         };
 
         template<typename T, template <typename > typename S>
-        struct is_var<var<T, S> > : std::true_type {
+        struct IsVar<var<T, S> > : std::true_type {
         };
     }
 
     namespace concepts {
         template<typename T>
-        concept Var = detail::is_var<std::decay_t<T> >::value;
+        concept Var = detail::IsVar<std::decay_t<T> >::value;
     }
 
     namespace detail {
