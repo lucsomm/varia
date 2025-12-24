@@ -271,11 +271,7 @@ namespace varia {
         } {
         }
 
-        var(std::initializer_list<detail::get_value_type_t<object_type> > li)
-            requires objects::concepts::Array<object_type> : mStorage(storage_policy::make(li)) {
-        }
-
-        // std::initializer_list<T> to objects::Array<var<T>>
+        // std::initializer_list<T> to objects::Array<var<T>>, disallow objects::Array<T>
         var(std::initializer_list<get_object_t<detail::get_value_type_t<object_type> > > li)
             requires (objects::concepts::Array<object_type> &&
                       concepts::Var<detail::get_value_type_t<object_type> >) : mStorage{
