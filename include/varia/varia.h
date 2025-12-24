@@ -48,7 +48,7 @@ namespace varia::objects {
     class_name(class_name&&) = default; \
     class_name& operator=(class_name&&) = default;
 
-#define VARIA_VARINTERFACE(name, body, ...) \
+#define VARIA_INTERFACE(name, body, ...) \
     struct Construct_##name : varia::objects::InterfaceTag __VA_OPT__(, __VA_ARGS__) { \
         static_assert(varia::objects::concepts::AllInterfaces<__VA_ARGS__>, \
             "varia: varinterface can only inherit from other interfaces"); \
@@ -62,7 +62,7 @@ namespace varia::objects {
         "varia: varinterface virtual member functions must be pure virtual"); \
     using name = Construct_##name;
 
-#define VARIA_VARCLASS(name, body, ...) \
+#define VARIA_REFCLASS(name, body, ...) \
     class Construct_##name __VA_OPT__( : public Construct_##__VA_ARGS__ )  { \
     public: \
         static_assert(varia::objects::is_single_inheritance_v<__VA_OPT__(Construct_##__VA_ARGS__)>, \
@@ -76,9 +76,9 @@ namespace varia::objects {
         \
         body \
     }; \
-    using name = varia::var<Construct_##name, RefStorage>;
+    using name = varia::var<Construct_##name, RefClass>;
 
-#define VARIA_VARSTRUCT(name, body, ...) \
+#define VARIA_VALCLASS(name, body, ...) \
     struct Construct_##name __VA_OPT__( : public Construct_##__VA_ARGS__ ) { \
         static_assert(varia::objects::is_single_inheritance_v<__VA_OPT__(Construct_##__VA_ARGS__)>, \
             "varia: varstruct cannot inherit from multiple types: "#__VA_ARGS__); \
@@ -99,9 +99,9 @@ namespace varia::objects {
     }; \
     static_assert(!std::is_polymorphic_v<Construct_##name>); \
     \
-    using name = varia::var<Construct_##name, ValStorage>;
+    using name = varia::var<Construct_##name, ValClass>;
 
-#define VARIA_TEMPLATE_VARCLASS(name, body, ...) \
+#define VARIA_TEMPLATE_REFCLASS(name, body, ...) \
     class Construct_##name __VA_OPT__( : public Construct_##__VA_ARGS__) { \
     public: \
         static_assert(varia::objects::is_single_inheritance_v<__VA_OPT__(Construct_##__VA_ARGS__)>, \
@@ -116,4 +116,4 @@ namespace varia::objects {
         body \
     }; \
     template<typename... Args> \
-    using name = varia::var<Construct_##name<Args...>, RefStorage>;
+    using name = varia::var<Construct_##name<Args...>, RefClass>;

@@ -33,4 +33,8 @@ namespace varia {
 
         pointer mObject;
     };
+
+
+    template<typename T>
+    using RefClass = RefStorage<T>;
 }

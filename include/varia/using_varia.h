@@ -4,7 +4,7 @@
 
 using namespace varia;
 
-#define varinterface VARIA_VARINTERFACE
-#define varclass VARIA_VARCLASS
-#define varstruct VARIA_VARSTRUCT
-#define template_varclass VARIA_TEMPLATE_VARCLASS
+#define interface VARIA_INTERFACE
+#define refclass VARIA_REFCLASS
+#define valclass VARIA_VALCLASS
+#define template_refclass VARIA_TEMPLATE_REFCLASS

@@ -1,11 +1,11 @@
 #include <iostream>
 #include "include/varia/using_varia.h"
 
-varinterface(Greeter,
-             virtual void greet() = 0;
+interface(Greeter,
+          virtual void greet() = 0;
 )
 
-varclass(A,
+refclass(A,
          explicit Construct_A(int a) {
          this->a = a;
          }
@@ -17,11 +17,11 @@ varclass(A,
          Int a = 8;
          , Greeter)
 
-varinterface(Tester,
-             virtual void test() = 0;
+interface(Tester,
+          virtual void test() = 0;
 )
 
-varclass(B,
+refclass(B,
          void greet() override {
          println("Hello, I am B.");
          }
@@ -32,17 +32,17 @@ varclass(B,
 
          , A, Tester)
 
-varstruct(D,);
-varstruct(G,);
-varstruct(F,);
+valclass(D,);
+valclass(G,);
+valclass(F,);
 
-varstruct(C,
-          Int four{4};
+valclass(C,
+         Int four{4};
 
-          , D)
+         , D)
 
 template<typename T = Float>
-template_varclass(Number,
+template_refclass(Number,
                   T number;
 )
 
