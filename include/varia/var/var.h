@@ -368,7 +368,7 @@ namespace varia {
     var(std::initializer_list<T>) -> var<objects::Array<var<T, ValStorage> > >;
 
     template<objects::concepts::StringLike T>
-    var(std::initializer_list<T>) -> var<objects::Array<var<T, ValStorage> > >;
+    var(std::initializer_list<T>) -> var<objects::Array<String> >;
 
     template<objects::concepts::Pointer T> requires (!std::same_as<T, const char*>)
     var(std::initializer_list<T>) -> var<objects::Array<var<T, ValStorage> > >;
