@@ -8,6 +8,7 @@
 
 #include "objects/object_hierarchy.h"
 #include "objects/string_object.h"
+#include "objects/object_concepts.h"
 #include "storage/default_storage.h"
 #include "storage/ref_storage.h"
 #include "storage/storage.h"
@@ -139,7 +140,7 @@ namespace varia {
             using type =
             std::conditional_t<concepts::Var<T>,
                 get_storage_policy_t<T>,
-                std::conditional_t<objects::concepts::Primitive<T> || std::derived_from<T, Construct_Value>,
+                std::conditional_t<objects::concepts::Primitive<T> || std::derived_from<T, DefaultToVal>,
                     ValStorage<T>,
                     RefStorage<T>
                 >
@@ -201,13 +202,20 @@ namespace varia {
         return *t;
     }
 
+    template<concepts::Var T>
+    struct VarVerifier {
+        VarVerifier() {
+        }
+    };
+
     template<typename Obj, template <typename > typename S> requires concepts::Storage<S<std::decay_t<Obj> > >
-    class var {
+    class var : VarVerifier<var<Obj, S> > {
     public:
         using object_type = std::decay_t<Obj>;
         using storage_policy = std::conditional_t<std::same_as<S<object_type>, DefaultStorage<object_type> >,
             default_storage_policy_t<object_type>,
             S<object_type> >;
+        using extend = object_type;
 
         static_assert(!(objects::concepts::Fundamental<object_type> &&
                         std::same_as<storage_policy, RefStorage<object_type> >),

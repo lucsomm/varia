@@ -73,7 +73,4 @@ namespace varia {
 
         pointer mObject;
     };
-
-    template<typename T>
-    using ValClass = ValStorage<T>;
 }

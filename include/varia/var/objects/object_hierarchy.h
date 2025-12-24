@@ -4,14 +4,6 @@
 #include <unordered_map>
 #include <vector>
 
-namespace varia {
-    struct Construct_Value {
-    };
-
-    struct Construct_Ref {
-    };
-}
-
 namespace varia::objects {
     using Bool = bool;
     using Int = int64_t;
