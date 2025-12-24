@@ -140,7 +140,7 @@ namespace varia {
             using type =
             std::conditional_t<concepts::Var<T>,
                 get_storage_policy_t<T>,
-                std::conditional_t<objects::concepts::Primitive<T> || std::derived_from<T, DefaultToVal>,
+                std::conditional_t<objects::concepts::Primitive<T>,
                     ValStorage<T>,
                     RefStorage<T>
                 >
